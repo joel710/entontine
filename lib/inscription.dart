@@ -15,9 +15,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
   final TextEditingController _telephoneController = TextEditingController();
   final TextEditingController _dateNaissanceController =
       TextEditingController();
-  final TextEditingController _villeController = TextEditingController();
-  final TextEditingController _paysController = TextEditingController();
-  final TextEditingController _adresseController = TextEditingController();
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
