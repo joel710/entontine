@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'inscription.dart';
+import 'home.dart';
 
 class ConnexionScreen extends StatefulWidget {
   @override
@@ -72,7 +73,12 @@ class _ConnexionScreenState extends State<ConnexionScreen> {
             ),
             SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                );
+              },
               child: Text(
                 'Se connecter',
                 style: TextStyle(

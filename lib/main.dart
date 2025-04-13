@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 import 'connexion.dart';
 import 'gard.dart';
 import 'inscription.dart';
+import 'home.dart';
 
 void main() => runApp(EtontineApp());
 
@@ -12,12 +13,17 @@ class EtontineApp extends StatelessWidget {
     return MaterialApp(
       title: 'etontine',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'Sans'),
-      home: GardScreen(),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        fontFamily: 'Sans',
+        textTheme: GoogleFonts.poppinsTextTheme(),
+      ),
+      home: GardScreen(), // Première page au lancement
       routes: {
         '/connexion': (context) => ConnexionScreen(),
         '/inscription': (context) => InscriptionScreen(),
         '/gard': (context) => GardScreen(),
+        '/home': (context) => HomeScreen(), // Ajout de la route home
       },
     );
   }
