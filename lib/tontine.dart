@@ -44,6 +44,15 @@ class _TontineScreenState extends State<TontineScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black), // Icône noire
+          onPressed: () {
+            Navigator.pushReplacementNamed(
+              context,
+              '/inscription',
+            ); // Retour à la page de connexion
+          },
+        ),
         title: RichText(
           text: TextSpan(
             style: TextStyle(

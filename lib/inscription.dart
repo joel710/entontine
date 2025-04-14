@@ -78,6 +78,15 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.black,
+          ), // Bouton retour noir
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/connexion');
+          },
+        ),
         title: RichText(
           text: TextSpan(
             style: TextStyle(
