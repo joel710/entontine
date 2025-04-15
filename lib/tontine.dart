@@ -126,6 +126,10 @@ class _TontineScreenState extends State<TontineScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     // Logique pour créer la tontine
+                    Navigator.pushReplacementNamed(
+                      context,
+                      '/profils',
+                    ); // Remplacez par la logique de création de tontine
                   },
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16),
