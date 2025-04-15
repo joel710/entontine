@@ -46,9 +46,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
             // Photo de profil
             CircleAvatar(
               radius: 50,
-              backgroundImage: AssetImage(
-                'assets/images/avatar.png',
-              ), // à remplacer par la vraie photo
+              backgroundImage: AssetImage('assets/images/avatar.png'),
             ),
             SizedBox(height: 16),
 
@@ -96,6 +94,25 @@ class _ProfilScreenState extends State<ProfilScreen> {
             _actionTile("Dépôt effectué : 5000 FCFA", "13 Avril 2025"),
             _actionTile("Seuil modifié : 10000 FCFA", "14 Avril 2025"),
             SizedBox(height: 30),
+
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, '/changer_mot_de_passe');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueAccent,
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              icon: Icon(Icons.lock_reset),
+              label: Text(
+                "Changer le mot de passe",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            SizedBox(height: 16),
 
             // Déconnexion
             ElevatedButton.icon(
