@@ -23,6 +23,12 @@ class _ProfilScreenState extends State<ProfilScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // Retour à l’écran précédent
+          },
+        ),
         title: Text("Mon Profil", style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         elevation: 0,
