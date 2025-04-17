@@ -4,6 +4,9 @@ import 'connexion.dart';
 import 'gard.dart';
 import 'inscription.dart';
 import 'home.dart';
+import 'mots_de_passe.dart';
+import 'profil.dart';
+import 'tontine.dart';
 
 void main() => runApp(EtontineApp());
 
@@ -24,6 +27,9 @@ class EtontineApp extends StatelessWidget {
         '/inscription': (context) => InscriptionScreen(),
         '/gard': (context) => GardScreen(),
         '/home': (context) => HomeScreen(), // Ajout de la route home
+        '/tontine': (context) => TontineScreen(),
+        '/profil': (context) => ProfilScreen(),
+        '/changer_mot_de_passe': (context) => ChangerMotDePasseScreen(),
       },
     );
   }
