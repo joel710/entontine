@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'profil.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -23,122 +24,152 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _buildTopSection(),
               SizedBox(height: 16),
-              _buildActionButtons(),
-              SizedBox(height: 16),
-              // _buildServiceGrid(),
-              SizedBox(height: 16),
               _buildPromoCard(),
+              SizedBox(height: 16),
+              _buildRecentTransactions(),
+              SizedBox(height: 6),
+              _buildRecentTransactions(),
+              SizedBox(height: 16),
+              _buildReferralSection(),
+              
+              SizedBox(height: 16),
             ],
           ),
         ),
       ),
+      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
   Widget _buildTopSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [primaryColor, secondaryColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(24),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Avatar et notification
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [primaryColor, secondaryColor],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProfilScreen()),
-                  );
-                },
-                child: CircleAvatar(
-                  radius: 24,
-                  backgroundImage: AssetImage('assets/images/avatar.png'),
+              // Avatar et notification
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ProfilScreen()),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 24,
+                      backgroundImage: AssetImage('assets/images/avatar.png'),
+                    ),
+                  ),
+                  Icon(Icons.notifications_none, color: Colors.white, size: 28),
+                ],
+              ),
+
+              SizedBox(height: 24),
+              Text(
+                "Balance",
+                style: GoogleFonts.poppins(
+                  color: Colors.white70,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
-              Icon(Icons.notifications_none, color: Colors.white, size: 28),
+
+              SizedBox(height: 6),
+              Text(
+                "34600 CFA",
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 36,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              SizedBox(height: 24),
+              SizedBox(height: 40), // Espace pour la boîte blanche
             ],
           ),
-
-          SizedBox(height: 24),
-          Text(
-            "Available Balance",
-            style: GoogleFonts.poppins(
-              color: Colors.white70,
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-
-          SizedBox(height: 6),
-          Text(
-            "\$450.54",
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontSize: 36,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
+        ),
+        Positioned(
+          bottom: -30,
+          left: 20,
+          right: 20,
+          child: _buildActionButtons(),
+        ),
+      ],
     );
   }
 
   Widget _buildActionButtons() {
     final buttons = [
-      {'icon': Icons.arrow_downward_rounded, 'label': 'Top Up'},
-      {'icon': Icons.send_rounded, 'label': 'Send'},
-      {'icon': Icons.request_page_rounded, 'label': 'Request'},
-      {'icon': Icons.history, 'label': 'History'},
+      {'icon': Icons.account_balance_wallet, 'label': 'Dépôt'},
+      {'icon': Icons.compare_arrows, 'label': 'Transfert'},
+      {'icon': Icons.history, 'label': 'Historique'},
+      {'icon': Icons.more_horiz, 'label': 'Plus'},
     ];
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: buttons.map((btn) {
-          return Column(
-            children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: Colors.white,
-                child: Icon(
-                  btn['icon'] as IconData,
-                  color: primaryColor,
-                  size: 28,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                btn['label'] as String,
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          );
-        }).toList(),
+        children:
+            buttons.map((btn) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      btn['icon'] as IconData,
+                      color: primaryColor,
+                      size: 24,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    btn['label'] as String,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
       ),
     );
   }
 
-
   Widget _buildPromoCard() {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.deepPurple.shade50,
@@ -148,36 +179,151 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.deepPurple.withOpacity(0.1),
               blurRadius: 10,
               offset: Offset(0, 6),
-            )
+            ),
           ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "1000 Days !",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.deepPurple.shade800,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              "Chaque mois, gagne une surprise avec etontine.",
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.deepPurple.shade700,
+              ),
+            ),
+            SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  "Réclame ta surprise maintenant",
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+Widget _buildRecentTransactions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Transactions récentes",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          SizedBox(height: 12),
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "18 Avril 2025 18:50",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Text(
+                      "250 CFA",
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "ECOM-SHOP +212689679048 GB - insuffici...",
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 8),
+          Center(
+            child: Text(
+              "Voir plus",
+              style: GoogleFonts.poppins(
+                color: primaryColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReferralSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.amber.shade50,
+          borderRadius: BorderRadius.circular(16),
         ),
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(
-              Icons.local_offer_outlined,
-              color: Colors.deepPurple,
-              size: 40,
-            ),
+            Icon(Icons.share, color: Colors.amber.shade700, size: 40),
             SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Special Offer for Today’s Top Up",
+                    "Partagez etontine avec vos proches",
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
-                      color: Colors.deepPurple.shade800,
+                      color: Colors.amber.shade800,
                     ),
                   ),
                   SizedBox(height: 4),
                   Text(
-                    "Get discount for every top up you make today!",
+                    "Partagez etontine avec vos amis et gagnez plein de lots",
                     style: GoogleFonts.poppins(
                       fontSize: 13,
-                      color: Colors.deepPurple.shade700,
+                      color: Colors.amber.shade700,
                     ),
                   ),
                 ],
@@ -186,6 +332,37 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+
+  Widget _buildBottomNavigationBar() {
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      selectedItemColor: primaryColor,
+      unselectedItemColor: Colors.grey,
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.credit_card),
+          label: 'Mes Tontine',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.compare_arrows),
+          label: 'Transfert',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.account_balance_wallet),
+          label: 'Portefeuille',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.shopping_bag),
+          label: 'Achats',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.headset_mic),
+          label: 'Support',
+        ),
+      ],
     );
   }
 }
