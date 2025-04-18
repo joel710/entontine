@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'profil.dart';
-
+import 'notification.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -74,7 +74,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       backgroundImage: AssetImage('assets/images/avatar.png'),
                     ),
                   ),
-                  Icon(Icons.notifications_none, color: Colors.white, size: 28),
+                  IconButton(
+      icon: Icon(Icons.notifications_none, color: Colors.white, size: 28),
+      onPressed: () {
+        Navigator.pushNamed(context, '/notifications'); // Utilisez votre nom de route
+      },
+    ),
                 ],
               ),
 
