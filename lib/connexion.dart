@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'inscription.dart';
+import 'home.dart';
 
 class ConnexionScreen extends StatefulWidget {
   @override
@@ -94,7 +95,10 @@ class _ConnexionScreenState extends State<ConnexionScreen> {
 
             ElevatedButton(
               onPressed: () {
-                // logique de connexion
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color.fromRGBO(33, 150, 243, 1),
