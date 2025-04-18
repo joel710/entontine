@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'profil.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: 16),
               _buildActionButtons(),
               SizedBox(height: 16),
-              _buildServiceGrid(),
+              // _buildServiceGrid(),
               SizedBox(height: 16),
               _buildPromoCard(),
             ],
@@ -56,17 +56,22 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundImage: AssetImage('assets/images/avatar.png'),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfilScreen()),
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 24,
+                  backgroundImage: AssetImage('assets/images/avatar.png'),
+                ),
               ),
-              Icon(
-                Icons.notifications_none,
-                color: Colors.white,
-                size: 28,
-              ),
+              Icon(Icons.notifications_none, color: Colors.white, size: 28),
             ],
           ),
+
           SizedBox(height: 24),
           Text(
             "Available Balance",
@@ -76,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
               fontWeight: FontWeight.w400,
             ),
           ),
+
           SizedBox(height: 6),
           Text(
             "\$450.54",
@@ -129,54 +135,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildServiceGrid() {
-    final services = [
-      {'icon': Icons.wifi, 'label': 'Internet'},
-      {'icon': Icons.lightbulb_outline, 'label': 'Electricity'},
-      {'icon': Icons.card_giftcard, 'label': 'Voucher'},
-      {'icon': Icons.shield_outlined, 'label': 'Insurance'},
-      {'icon': Icons.phone_android, 'label': 'Mobile'},
-      {'icon': Icons.receipt_long, 'label': 'Bills'},
-      {'icon': Icons.store_mall_directory, 'label': 'Merchant'},
-      {'icon': Icons.more_horiz, 'label': 'More'},
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.builder(
-        itemCount: services.length,
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          mainAxisSpacing: 20,
-          crossAxisSpacing: 20,
-          childAspectRatio: 0.8,
-        ),
-        itemBuilder: (_, index) {
-          final item = services[index];
-          return Column(
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: Colors.white,
-                child: Icon(
-                  item['icon'] as IconData,
-                  color: primaryColor,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                item['label'] as String,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(fontSize: 12),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
 
   Widget _buildPromoCard() {
     return Padding(
