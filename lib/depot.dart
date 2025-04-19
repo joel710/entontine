@@ -41,7 +41,7 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/home');
+                      Navigator.pushNamed(context, '/depot');
                     },
                     child: const Icon(Icons.arrow_back, color: Colors.white),
                   ),
@@ -205,8 +205,13 @@ class TransferSuccessPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
-                children: const [
-                  Icon(Icons.arrow_back, color: Colors.white),
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/depot');
+                    },
+                    child: const Icon(Icons.arrow_back, color: Colors.white),
+                  ),
                   SizedBox(width: 16),
                   Text(
                     "Receipt",
@@ -295,7 +300,7 @@ class TransferSuccessPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => Navigator.pushNamed(context, '/home'),
                       child: const Text("Done"),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.from(

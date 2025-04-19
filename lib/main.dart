@@ -1,3 +1,4 @@
+import 'package:entontine/payement.dart';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -49,6 +50,7 @@ class EtontineApp extends StatelessWidget {
         '/changer_mot_de_passe': (context) => ChangerMotDePasseScreen(),
         '/notifications': (context) => NotificationsScreen(),
         '/depot': (context) => SendMoneyPageScreen(),
+        '/payement': (context) => PaymentMethodPageScreen(),
       },
     );
   }

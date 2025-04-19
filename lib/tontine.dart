@@ -128,7 +128,7 @@ class _TontineScreenState extends State<TontineScreen> {
                     // Logique pour créer la tontine
                     Navigator.pushReplacementNamed(
                       context,
-                      '/depot',
+                      '/payement',
                     ); // Remplacez par la logique de création de tontine
                   },
                   style: ElevatedButton.styleFrom(
