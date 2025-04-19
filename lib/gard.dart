@@ -37,7 +37,17 @@ class _GardScreenState extends State<GardScreen> {
                 fontFamily: 'Sans', // Tu peux personnaliser ici la police
               ),
               children: [
-                TextSpan(text: 'e', style: TextStyle(color: Colors.blue)),
+                TextSpan(
+                  text: 'e',
+                  style: TextStyle(
+                    color: const Color.from(
+                      alpha: 1,
+                      red: 0.129,
+                      green: 0.588,
+                      blue: 0.953,
+                    ),
+                  ),
+                ),
                 TextSpan(
                   text: 'tontine',
                   style: TextStyle(color: Colors.black),

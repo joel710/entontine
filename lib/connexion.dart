@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'inscription.dart';
 import 'home.dart';
+import 'inscription.dart';
 
 class ConnexionScreen extends StatefulWidget {
   @override

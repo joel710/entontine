@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
 class NotificationsScreen extends StatelessWidget {
   final Color primaryColor = Color(0xFF5E2ECC);

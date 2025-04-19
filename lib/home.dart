@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import 'profil.dart';
-import 'notification.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -10,8 +11,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final Color primaryColor = Color(0xFF5E2ECC);
-  final Color secondaryColor = Color(0xFF956DFF);
+  final Color primaryColor = Color.from(
+    alpha: 1,
+    red: 0.129,
+    green: 0.588,
+    blue: 0.953,
+  );
+  final Color secondaryColor = Color.from(
+    alpha: 1,
+    red: 0.129,
+    green: 0.588,
+    blue: 0.953,
+  );
   final Color backgroundColor = Color(0xFFF5F5F5);
 
   @override
@@ -31,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildRecentTransactions(),
               SizedBox(height: 16),
               _buildReferralSection(),
-              
+
               SizedBox(height: 16),
             ],
           ),
@@ -75,11 +86,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   IconButton(
-      icon: Icon(Icons.notifications_none, color: Colors.white, size: 28),
-      onPressed: () {
-        Navigator.pushNamed(context, '/notifications'); // Utilisez votre nom de route
-      },
-    ),
+                    icon: Icon(
+                      Icons.notifications_none,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/notifications',
+                      ); // Utilisez votre nom de route
+                    },
+                  ),
                 ],
               ),
 
@@ -181,7 +199,12 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.deepPurple.withOpacity(0.1),
+              color: Color.from(
+                alpha: 1,
+                red: 0.129,
+                green: 0.588,
+                blue: 0.953,
+              ),
               blurRadius: 10,
               offset: Offset(0, 6),
             ),
@@ -196,7 +219,12 @@ class _HomeScreenState extends State<HomeScreen> {
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
-                color: Colors.deepPurple.shade800,
+                color: Color.from(
+                  alpha: 1,
+                  red: 0.129,
+                  green: 0.588,
+                  blue: 0.953,
+                ),
               ),
             ),
             SizedBox(height: 8),
@@ -204,7 +232,12 @@ class _HomeScreenState extends State<HomeScreen> {
               "Chaque mois, gagne une surprise avec etontine.",
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.deepPurple.shade700,
+                color: Color.from(
+                  alpha: 1,
+                  red: 0.129,
+                  green: 0.588,
+                  blue: 0.953,
+                ),
               ),
             ),
             SizedBox(height: 16),
@@ -231,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-Widget _buildRecentTransactions() {
+  Widget _buildRecentTransactions() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -339,7 +372,6 @@ Widget _buildRecentTransactions() {
       ),
     );
   }
-
 
   Widget _buildBottomNavigationBar() {
     return BottomNavigationBar(

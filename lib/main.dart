@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
 import 'connexion.dart';
+import 'depot.dart'; // Import the missing file
 import 'gard.dart';
-import 'inscription.dart';
 import 'home.dart';
+import 'inscription.dart';
 import 'mots_de_passe.dart';
+import 'notification.dart';
 import 'profil.dart';
 import 'tontine.dart';
-import 'notification.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +37,7 @@ class EtontineApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('fr', 'FR')],
-    
+
       home: GardScreen(), // Première page au lancement
       routes: {
         '/connexion': (context) => ConnexionScreen(),
@@ -46,6 +48,7 @@ class EtontineApp extends StatelessWidget {
         '/profil': (context) => ProfilScreen(),
         '/changer_mot_de_passe': (context) => ChangerMotDePasseScreen(),
         '/notifications': (context) => NotificationsScreen(),
+        '/depot': (context) => SendMoneyPageScreen(),
       },
     );
   }
