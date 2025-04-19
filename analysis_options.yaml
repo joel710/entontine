@@ -23,6 +23,13 @@ linter:
   rules:
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
-
+dependencies:
+  flutter:
+    sdk: flutter
+  google_fonts: ^4.0.4
+  material_color_utilities: ^0.12.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
