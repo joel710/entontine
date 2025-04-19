@@ -197,18 +197,6 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: Colors.deepPurple.shade50,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Color.from(
-                alpha: 1,
-                red: 0.129,
-                green: 0.588,
-                blue: 0.953,
-              ),
-              blurRadius: 10,
-              offset: Offset(0, 6),
-            ),
-          ],
         ),
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -232,12 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
               "Chaque mois, gagne une surprise avec etontine.",
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Color.from(
-                  alpha: 1,
-                  red: 0.129,
-                  green: 0.588,
-                  blue: 0.953,
-                ),
+                color: Color.fromARGB(255, 128, 192, 245),
               ),
             ),
             SizedBox(height: 16),
