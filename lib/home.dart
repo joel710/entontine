@@ -361,6 +361,25 @@ class _HomeScreenState extends State<HomeScreen> {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: primaryColor,
       unselectedItemColor: Colors.grey,
+      onTap: (index) {
+        switch (index) {
+          case 0:
+            Navigator.pushNamed(context, '/mes-tontines');
+            break;
+          case 1:
+            Navigator.pushNamed(context, '/depot');
+            break;
+          case 2:
+            Navigator.pushNamed(context, '/portefeuille');
+            break;
+          case 3:
+            Navigator.pushNamed(context, '/achats');
+            break;
+          case 4:
+            Navigator.pushNamed(context, '/support');
+            break;
+        }
+      },
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.credit_card),
