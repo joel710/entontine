@@ -195,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.deepPurple.shade50,
+          color: Color.fromARGB(255, 232, 240, 247),
           borderRadius: BorderRadius.circular(16),
         ),
         padding: const EdgeInsets.all(16),
@@ -387,15 +387,15 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.compare_arrows),
-          label: 'Transfert',
+          label: 'Dépôt',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.account_balance_wallet),
-          label: 'Portefeuille',
+          icon: Icon(Icons.history),
+          label: 'Trasactions',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.shopping_bag),
-          label: 'Achats',
+          label: 'Retrait',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.headset_mic),
