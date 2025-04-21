@@ -14,6 +14,7 @@ import 'mots_de_passe.dart';
 import 'notification.dart';
 import 'profil.dart';
 import 'tontine.dart';
+import 'transactions.dart'; // Import the TransactionScreen file
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,9 +49,10 @@ class EtontineApp extends StatelessWidget {
         '/tontine': (context) => TontineScreen(),
         '/profil': (context) => ProfilScreen(),
         '/changer_mot_de_passe': (context) => ChangerMotDePasseScreen(),
-        '/notifications': (context) => NotificationsScreen(),
+        '/notification': (context) => NotificationsScreen(),
         '/depot': (context) => SendMoneyPageScreen(),
         '/payement': (context) => PaymentMethodPageScreen(),
+        '/transactions': (context) => TransactionScreen(),
       },
     );
   }

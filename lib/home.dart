@@ -94,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () {
                       Navigator.pushNamed(
                         context,
-                        '/notifications',
+                        '/notification',
                       ); // Utilisez votre nom de route
                     },
                   ),
@@ -367,10 +367,10 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.pushNamed(context, '/mes-tontines');
             break;
           case 1:
-            Navigator.pushNamed(context, '/depot');
+            Navigator.pushNamed(context, '/payement');
             break;
           case 2:
-            Navigator.pushNamed(context, '/portefeuille');
+            Navigator.pushNamed(context, '/transactions');
             break;
           case 3:
             Navigator.pushNamed(context, '/achats');

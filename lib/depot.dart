@@ -41,7 +41,7 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/depot');
+                      Navigator.pushNamed(context, '/payement');
                     },
                     child: const Icon(Icons.arrow_back, color: Colors.white),
                   ),

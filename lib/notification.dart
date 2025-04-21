@@ -4,8 +4,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class NotificationsScreen extends StatelessWidget {
-  final Color primaryColor = Color(0xFF5E2ECC);
-  final Color secondaryColor = Color(0xFF956DFF);
+  final Color primaryColor = const Color.from(
+    alpha: 1,
+    red: 0.129,
+    green: 0.588,
+    blue: 0.953,
+  );
+  final Color secondaryColor = const Color.from(
+    alpha: 1,
+    red: 0.129,
+    green: 0.588,
+    blue: 0.953,
+  );
   final Color backgroundColor = Color(0xFFF5F5F5);
 
   final List<NotificationItem> notifications = [
@@ -58,7 +68,7 @@ class NotificationsScreen extends StatelessWidget {
           'Notifications',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
-            color: const Color.fromARGB(255, 103, 95, 221),
+            color: const Color.fromARGB(255, 254, 255, 255),
           ),
         ),
         centerTitle: true,
