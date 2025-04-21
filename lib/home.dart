@@ -373,7 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.pushNamed(context, '/transactions');
             break;
           case 3:
-            Navigator.pushNamed(context, '/achats');
+            Navigator.pushNamed(context, '/retrait');
             break;
           case 4:
             Navigator.pushNamed(context, '/support');
