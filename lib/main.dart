@@ -13,8 +13,10 @@ import 'inscription.dart';
 import 'mots_de_passe.dart';
 import 'notification.dart';
 import 'profil.dart';
+import 'retrait.dart';
+import 'support.dart';
 import 'tontine.dart';
-import 'transactions.dart'; // Import the TransactionScreen file
+import 'transactions.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +55,12 @@ class EtontineApp extends StatelessWidget {
         '/depot': (context) => SendMoneyPageScreen(),
         '/payement': (context) => PaymentMethodPageScreen(),
         '/transactions': (context) => TransactionScreen(),
+        '/support': (context) => SupportPageScreen(),
+        '/retrait':
+            (context) => RetraitPageScreen(
+              soldeActuel: 1000.0, // Exemple de solde actuel
+              seuilMinimum: 500.0, // Exemple de seuil minimum
+            ),
       },
     );
   }
