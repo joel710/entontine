@@ -56,11 +56,7 @@ class EtontineApp extends StatelessWidget {
         '/payement': (context) => PaymentMethodPageScreen(),
         '/transactions': (context) => TransactionScreen(),
         '/support': (context) => SupportPageScreen(),
-        '/retrait':
-            (context) => RetraitPageScreen(
-              soldeActuel: 1000.0, // Exemple de solde actuel
-              seuilMinimum: 500.0, // Exemple de seuil minimum
-            ),
+        '/retrait': (context) => WithdrawPageScreen(),
       },
     );
   }
