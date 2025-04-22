@@ -1,6 +1,6 @@
 # 💰 eTontine – Votre Tontine Personnelle, Digitalisée avec Flutter
 
-![eTontine Logo](assets/images/logo.png)
+![eTontine Logo](assets/images/logoi.png)
 
 
 ![Flutter](https://img.shields.io/badge/Flutter-v3.x-blue?logo=flutter)
