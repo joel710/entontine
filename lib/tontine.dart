@@ -142,9 +142,9 @@ class _TontineScreenState extends State<TontineScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Tontine créée avec succès !')),
                         );
-                        Navigator.pushReplacementNamed(
-                          context,
-                          '/home',
+                    Navigator.pushReplacementNamed(
+                      context,
+                      '/home',
                           arguments: {'token': token},
                         );
                       } else {
