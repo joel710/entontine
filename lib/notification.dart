@@ -113,8 +113,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       fontSize: 16,
                           color: notification['isRead'] == true ? Colors.grey[600] : primaryColor,
                         ),
-                      ),
                     ),
+                  ),
                     if (notification['subtitle'] != null)
                     Padding(
                         padding: EdgeInsets.only(left: 16, top: 4),

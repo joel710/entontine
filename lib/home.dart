@@ -64,18 +64,18 @@ class _HomeScreenState extends State<HomeScreen> {
             final balance = data['balance']?.toString() ?? '0 CFA';
             final transactions = data['transactions'] ?? [];
             return SingleChildScrollView(
-              child: Column(
-                children: [
+          child: Column(
+            children: [
                   _buildTopSection(balance),
-                  SizedBox(height: 16),
-                  _buildPromoCard(),
-                  SizedBox(height: 16),
+              SizedBox(height: 16),
+              _buildPromoCard(),
+              SizedBox(height: 16),
                   _buildRecentTransactions(transactions),
-                  SizedBox(height: 16),
-                  _buildReferralSection(),
-                  SizedBox(height: 16),
-                ],
-              ),
+              SizedBox(height: 16),
+              _buildReferralSection(),
+              SizedBox(height: 16),
+            ],
+          ),
             );
           },
         ),
@@ -332,15 +332,15 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           )),
           if (transactions.isNotEmpty)
-            Center(
-              child: Text(
-                "Voir plus",
-                style: GoogleFonts.poppins(
-                  color: primaryColor,
-                  fontWeight: FontWeight.w500,
-                ),
+          Center(
+            child: Text(
+              "Voir plus",
+              style: GoogleFonts.poppins(
+                color: primaryColor,
+                fontWeight: FontWeight.w500,
               ),
             ),
+          ),
         ],
       ),
     );
