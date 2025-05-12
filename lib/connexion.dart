@@ -46,11 +46,21 @@ class _ConnexionScreenState extends State<ConnexionScreen> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final token = data['token'];
-      // TODO: Stocker le token (ex: shared_preferences) et naviguer vers le dashboard
-      print('Connexion réussie, token : ' + token);
+      // Navigation vers le dashboard avec le token
+      Navigator.pushReplacementNamed(
+        context,
+        '/home',
+        arguments: {'token': token},
+      );
     } else {
-      // Afficher une erreur
-      print('Erreur de connexion : ' + response.body);
+      String errorMsg = 'Erreur de connexion';
+      try {
+        final data = jsonDecode(response.body);
+        errorMsg = data['error'] ?? data['detail'] ?? errorMsg;
+      } catch (_) {}
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMsg)),
+      );
     }
   }
 
