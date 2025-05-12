@@ -5,13 +5,17 @@ class ApiService {
   static const String baseUrl = "http://192.168.10.10:8000/api";
 
   // Inscription
-  static Future<http.Response> register(String username, String email, String password) async {
+  static Future<http.Response> register(String username, String email, String password, String firstName, String lastName, String phoneNumber, String address) async {
     final response = await http.post(
       Uri.parse('$baseUrl/register/'),
       body: {
         'username': username,
         'email': email,
         'password': password,
+        'first_name': firstName,
+        'last_name': lastName,
+        'phone_number': phoneNumber,
+        'address': address,
       },
     );
     return response;

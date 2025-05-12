@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'services/api_service.dart';
+import 'dart:convert';
 
 class TontineScreen extends StatefulWidget {
   @override
@@ -39,6 +41,9 @@ class _TontineScreenState extends State<TontineScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Récupérer le token passé en argument
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+    final token = args?['token'] ?? '';
     return Scaffold(
       backgroundColor: Color(0xFFF8F9FA),
       appBar: AppBar(
@@ -124,12 +129,39 @@ class _TontineScreenState extends State<TontineScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Logique pour créer la tontine
-                    Navigator.pushReplacementNamed(
-                      context,
-                      '/home',
-                    ); // Remplacez par la logique de création de tontine
+                    try {
+                      final response = await ApiService.createTontine(
+                        token,
+                        _nomTontineController.text,
+                        double.tryParse(_montantController.text) ?? 0,
+                        1, // nombre de membres à ajuster selon ton modèle
+                      );
+                      if (response.statusCode == 201) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Tontine créée avec succès !')),
+                        );
+                        Navigator.pushReplacementNamed(
+                          context,
+                          '/home',
+                          arguments: {'token': token},
+                        );
+                      } else {
+                        String errorMsg = 'Erreur lors de la création de la tontine';
+                        try {
+                          final data = jsonDecode(response.body);
+                          errorMsg = data['error'] ?? data['detail'] ?? errorMsg;
+                        } catch (_) {}
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(errorMsg)),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Erreur : ' + e.toString())),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16),

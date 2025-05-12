@@ -78,12 +78,27 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
       _nomController.text,
       _emailController.text,
       _passwordController.text,
+      _prenomController.text,
+      _nomController.text,
+      _telephoneController.text,
+      'Adresse inconnue',
     );
     if (response.statusCode == 201) {
       // Succès, propose de se connecter
-      print('Inscription réussie');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Inscription réussie ! Connectez-vous.')),
+      );
+      // Redirige vers la connexion
+      Navigator.pushReplacementNamed(context, '/connexion');
     } else {
-      print('Erreur d\'inscription : ' + response.body);
+      String errorMsg = 'Erreur d\'inscription';
+      try {
+        final data = jsonDecode(response.body);
+        errorMsg = data['error'] ?? data['detail'] ?? errorMsg;
+      } catch (_) {}
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMsg)),
+      );
     }
   }
 
