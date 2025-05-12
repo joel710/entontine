@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://192.168.10.10:8000/api"; // Remplace par l'IP de ton PC si besoin
+  static const String baseUrl = "http://192.168.10.10:8000/api";
 
   // Inscription
   static Future<http.Response> register(String username, String email, String password) async {
