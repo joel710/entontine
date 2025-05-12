@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'services/api_service.dart';
+import 'dart:convert';
 
 import 'home.dart';
 import 'inscription.dart';
@@ -9,8 +11,8 @@ class ConnexionScreen extends StatefulWidget {
 }
 
 class _ConnexionScreenState extends State<ConnexionScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   InputDecoration champDecoration(String hint) {
     return InputDecoration(
@@ -34,6 +36,22 @@ class _ConnexionScreenState extends State<ConnexionScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
     );
+  }
+
+  void login() async {
+    final response = await ApiService.login(
+      usernameController.text,
+      passwordController.text,
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final token = data['token'];
+      // TODO: Stocker le token (ex: shared_preferences) et naviguer vers le dashboard
+      print('Connexion réussie, token : ' + token);
+    } else {
+      // Afficher une erreur
+      print('Erreur de connexion : ' + response.body);
+    }
   }
 
   @override
@@ -80,26 +98,21 @@ class _ConnexionScreenState extends State<ConnexionScreen> {
             SizedBox(height: 40),
 
             TextField(
-              controller: _emailController,
+              controller: usernameController,
               decoration: champDecoration('Email'),
               keyboardType: TextInputType.emailAddress,
             ),
             SizedBox(height: 20),
 
             TextField(
-              controller: _passwordController,
+              controller: passwordController,
               decoration: champDecoration('Mot de passe'),
               obscureText: true,
             ),
             SizedBox(height: 30),
 
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                );
-              },
+              onPressed: login,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color.fromRGBO(33, 150, 243, 1),
                 padding: EdgeInsets.symmetric(vertical: 16),

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'services/api_service.dart';
+import 'dart:convert';
 
 class SendMoneyPageScreen extends StatefulWidget {
-  const SendMoneyPageScreen({Key? key}) : super(key: key);
+  final String token;
+  const SendMoneyPageScreen({Key? key, required this.token}) : super(key: key);
 
   @override
   _SendMoneyPageState createState() => _SendMoneyPageState();
@@ -9,6 +12,7 @@ class SendMoneyPageScreen extends StatefulWidget {
 
 class _SendMoneyPageState extends State<SendMoneyPageScreen> {
   String inputAmount = '';
+  bool isLoading = false;
 
   void onKeyboardTap(String value) {
     setState(() {
@@ -20,6 +24,58 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
         inputAmount += value;
       }
     });
+  }
+
+  void handleDeposit() async {
+    setState(() { isLoading = true; });
+    try {
+      final response = await ApiService.deposit(widget.token, double.tryParse(inputAmount) ?? 0);
+      setState(() { isLoading = false; });
+      if (response.statusCode == 201) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text('Succès'),
+            content: Text('Dépôt effectué avec succès !'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text('Erreur'),
+            content: Text('Erreur lors du dépôt : ' + response.body),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() { isLoading = false; });
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Erreur'),
+          content: Text('Erreur réseau : ' + e.toString()),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -129,19 +185,10 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(20),
-                      child: ElevatedButton(
-                        onPressed:
-                            inputAmount.isEmpty
-                                ? null
-                                : () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (_) => const TransferSuccessPage(),
-                                    ),
-                                  );
-                                },
+                      child: isLoading
+                          ? CircularProgressIndicator()
+                          : ElevatedButton(
+                              onPressed: inputAmount.isEmpty ? null : handleDeposit,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.from(
                             alpha: 1,
@@ -157,7 +204,7 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: const Text("Continue"),
+                              child: const Text("Continuer"),
                       ),
                     ),
                   ],
@@ -326,5 +373,14 @@ class TransferSuccessPage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+void deposit(String token, double montant) async {
+  final response = await ApiService.deposit(token, montant);
+  if (response.statusCode == 201) {
+    print('Dépôt effectué avec succès');
+  } else {
+    print('Erreur lors du dépôt : ' + response.body);
   }
 }

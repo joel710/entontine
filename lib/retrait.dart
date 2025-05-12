@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class WithdrawPageScreen extends StatefulWidget {
-  const WithdrawPageScreen({Key? key}) : super(key: key);
+  const WithdrawPageScreen({Key? key, required token}) : super(key: key);
 
   @override
   _WithdrawPageState createState() => _WithdrawPageState();

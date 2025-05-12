@@ -1,22 +1,33 @@
 import 'package:flutter/material.dart';
+import 'services/api_service.dart';
+import 'dart:convert';
 
 class ProfilScreen extends StatefulWidget {
+  final String token;
+  const ProfilScreen({Key? key, required this.token}) : super(key: key);
+
   @override
   _ProfilScreenState createState() => _ProfilScreenState();
 }
 
 class _ProfilScreenState extends State<ProfilScreen> {
   bool _isEditing = false;
+  late Future<Map<String, dynamic>> profilFuture;
 
-  final TextEditingController _nomController = TextEditingController(
-    text: "e etontine",
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: "etontine@example.com",
-  );
-  final TextEditingController _telController = TextEditingController(
-    text: "+228 90 00 00 00",
-  );
+  @override
+  void initState() {
+    super.initState();
+    profilFuture = fetchProfil();
+  }
+
+  Future<Map<String, dynamic>> fetchProfil() async {
+    final response = await ApiService.getDashboard(widget.token); // À adapter si endpoint spécifique profil
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Erreur lors du chargement du profil');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +37,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // Retour à l’écran précédent
+            Navigator.pop(context);
           },
         ),
         title: Text("Mon Profil", style: TextStyle(color: Colors.black)),
@@ -45,42 +56,47 @@ class _ProfilScreenState extends State<ProfilScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: profilFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erreur : \\${snapshot.error}'));
+          } else if (!snapshot.hasData) {
+            return Center(child: Text('Aucune donnée trouvée.'));
+          }
+          final data = snapshot.data!;
+          final nom = data['nom'] ?? '';
+          final email = data['email'] ?? '';
+          final tel = data['telephone'] ?? '';
+          return SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
           children: [
-            // Photo de profil
             CircleAvatar(
               radius: 50,
               backgroundImage: AssetImage('assets/images/avatar.png'),
             ),
             SizedBox(height: 16),
-
-            // Nom
             TextField(
-              controller: _nomController,
+                  controller: TextEditingController(text: nom),
               enabled: _isEditing,
               decoration: _inputDecoration("Nom complet"),
             ),
             SizedBox(height: 12),
-
-            // Email
             TextField(
-              controller: _emailController,
+                  controller: TextEditingController(text: email),
               enabled: _isEditing,
               decoration: _inputDecoration("Adresse email"),
             ),
             SizedBox(height: 12),
-
-            // Téléphone
             TextField(
-              controller: _telController,
+                  controller: TextEditingController(text: tel),
               enabled: _isEditing,
               decoration: _inputDecoration("Téléphone"),
             ),
             SizedBox(height: 30),
-
-            // Historique d’actions
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -93,14 +109,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
               ),
             ),
             SizedBox(height: 12),
-            _actionTile(
-              "Tontine créée : Jeunes Entrepreneurs",
-              "12 Avril 2025",
-            ),
-            _actionTile("Dépôt effectué : 5000 FCFA", "13 Avril 2025"),
-            _actionTile("Seuil modifié : 10000 FCFA", "14 Avril 2025"),
+                // Afficher ici les dernières actions si disponibles dans l'API
             SizedBox(height: 30),
-
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.pushNamed(context, '/changer_mot_de_passe');
@@ -119,8 +129,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
               ),
             ),
             SizedBox(height: 16),
-
-            // Déconnexion
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/connexion');
@@ -140,6 +148,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
             ),
           ],
         ),
+          );
+        },
       ),
     );
   }
@@ -157,15 +167,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: Colors.blueAccent, width: 2),
       ),
-    );
-  }
-
-  Widget _actionTile(String title, String date) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Icon(Icons.check_circle, color: Colors.green),
-      title: Text(title),
-      subtitle: Text(date),
     );
   }
 }

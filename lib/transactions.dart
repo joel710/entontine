@@ -1,67 +1,33 @@
 import 'package:flutter/material.dart';
+import 'services/api_service.dart';
+import 'dart:convert';
 
 class TransactionScreen extends StatefulWidget {
+  final String token;
+  TransactionScreen({required this.token});
+
   @override
   _TransactionScreenState createState() => _TransactionScreenState();
 }
 
 class _TransactionScreenState extends State<TransactionScreen> {
-  final List<Map<String, String>> transactions = const [
-    {
-      'service': 'Moov Money',
-      'amount': '2 500 F CFA',
-      'date': '20 Avril 2025',
-      'status': 'Réussi',
-    },
-    {
-      'service': 'Mix by Yassir',
-      'amount': '5 000 F CFA',
-      'date': '18 Avril 2025',
-      'status': 'Échoué',
-    },
-    {
-      'service': 'Moov Money',
-      'amount': '1 000 F CFA',
-      'date': '15 Avril 2025',
-      'status': 'En attente',
-    },
-    {
-      'service': 'Moov Money',
-      'amount': '2 500 F CFA',
-      'date': '20 Avril 2025',
-      'status': 'Réussi',
-    },
-    {
-      'service': 'Mix by Yassir',
-      'amount': '5 000 F CFA',
-      'date': '18 Avril 2025',
-      'status': 'Échoué',
-    },
-    {
-      'service': 'Moov Money',
-      'amount': '1 000 F CFA',
-      'date': '15 Avril 2025',
-      'status': 'En attente',
-    },
-    {
-      'service': 'Moov Money',
-      'amount': '2 500 F CFA',
-      'date': '20 Avril 2025',
-      'status': 'Réussi',
-    },
-    {
-      'service': 'Mix by Yassir',
-      'amount': '5 000 F CFA',
-      'date': '18 Avril 2025',
-      'status': 'Échoué',
-    },
-    {
-      'service': 'Moov Money',
-      'amount': '1 000 F CFA',
-      'date': '15 Avril 2025',
-      'status': 'En attente',
-    },
-  ];
+  late Future<List<dynamic>> transactionsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    transactionsFuture = fetchTransactions();
+  }
+
+  Future<List<dynamic>> fetchTransactions() async {
+    final response = await ApiService.getDashboard(widget.token); // À adapter si endpoint spécifique
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['transactions'] ?? [];
+    } else {
+      throw Exception('Erreur lors du chargement des transactions');
+    }
+  }
 
   Icon _buildStatusIcon(String status) {
     switch (status) {
@@ -118,27 +84,23 @@ class _TransactionScreenState extends State<TransactionScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Container(
+      body: FutureBuilder<List<dynamic>>(
+        future: transactionsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erreur : \\${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('Aucune transaction trouvée.'));
+          }
+          final transactions = snapshot.data!;
+          return ListView.builder(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Historique des transactions',
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
                 itemCount: transactions.length,
                 itemBuilder: (context, index) {
                   final transaction = transactions[index];
                   final status = transaction['status'] ?? '';
-
                   return Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
@@ -179,10 +141,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                     ),
                   );
                 },
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

@@ -47,16 +47,40 @@ class EtontineApp extends StatelessWidget {
         '/connexion': (context) => ConnexionScreen(),
         '/inscription': (context) => InscriptionScreen(),
         '/gard': (context) => GardScreen(),
-        '/home': (context) => HomeScreen(), // Ajout de la route home
+        '/home': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final token = args?['token'] ?? '';
+          return HomeScreen(token: token);
+        },
         '/tontine': (context) => TontineScreen(),
-        '/profil': (context) => ProfilScreen(),
+        '/profil': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final token = args?['token'] ?? '';
+          return ProfilScreen(token: token);
+        },
         '/changer_mot_de_passe': (context) => ChangerMotDePasseScreen(),
-        '/notification': (context) => NotificationsScreen(),
-        '/depot': (context) => SendMoneyPageScreen(),
+        '/notification': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final token = args?['token'] ?? '';
+          return NotificationsScreen(token: token);
+        },
+        '/depot': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final token = args?['token'] ?? '';
+          return SendMoneyPageScreen(token: token);
+        },
         '/payement': (context) => PaymentMethodPageScreen(),
-        '/transactions': (context) => TransactionScreen(),
+        '/transactions': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final token = args?['token'] ?? '';
+          return TransactionScreen(token: token);
+        },
         '/support': (context) => SupportPageScreen(),
-        '/retrait': (context) => WithdrawPageScreen(),
+        '/retrait': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final token = args?['token'] ?? '';
+          return WithdrawPageScreen(token: token);
+        },
       },
     );
   }

@@ -2,8 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
+import 'services/api_service.dart';
+import 'dart:convert';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends StatefulWidget {
+  final String token;
+  const NotificationsScreen({Key? key, required this.token}) : super(key: key);
+
+  @override
+  _NotificationsScreenState createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  late Future<List<dynamic>> notificationsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    notificationsFuture = fetchNotifications();
+  }
+
+  Future<List<dynamic>> fetchNotifications() async {
+    final response = await ApiService.getNotifications(widget.token);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Erreur lors du chargement des notifications');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
   final Color primaryColor = const Color.from(
     alpha: 1,
     red: 0.129,
@@ -18,49 +47,6 @@ class NotificationsScreen extends StatelessWidget {
   );
   final Color backgroundColor = Color(0xFFF5F5F5);
 
-  final List<NotificationItem> notifications = [
-    NotificationItem(
-      title: "Maintenance terminée",
-      message:
-          "Cher utilisateur, nous vous informons que la maintenance du système est terminée et que vous pouvez maintenant reprendre l'utilisation de l'application. Merci pour votre collaboration.",
-      date: DateTime(2025, 4, 16, 16, 43, 22),
-      isRead: false,
-      hasCheckbox: true,
-    ),
-    NotificationItem(
-      title: "Test 2",
-      subtitle: "etontine",
-      date: DateTime(2025, 4, 14, 15, 38, 6),
-      isRead: true,
-    ),
-    NotificationItem(
-      title: "etontine Test",
-      subtitle: "Test",
-      date: DateTime(2025, 4, 14, 15, 9, 49),
-      isRead: true,
-    ),
-    NotificationItem(
-      title: "Maintenance planifiée",
-      message:
-          "Cher utilisateur, nous effectuerons une maintenance ce 15 avril 2025 à 23h GMT pour améliorer votre expérience. La maintenance ne devrait pas durer plus d'une heure. Nous vous notifierons dès la fin des opérations. Merci pour votre compréhension.",
-      date: DateTime(2025, 4, 14, 14, 9, 20),
-      isRead: true,
-      hasCheckbox: true,
-      isChecked: true,
-    ),
-    NotificationItem(
-      title: "Bonne fête des Rameaux !",
-      message:
-          "En ce jour de paix et d'espérance, etontine vous souhaite une belle célébration remplie de sérénité et de bénédictions.",
-      date: DateTime(2025, 4, 14),
-      isRead: true,
-      hasCheckbox: true,
-      isChecked: true,
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
@@ -83,22 +69,25 @@ class NotificationsScreen extends StatelessWidget {
         ),
         elevation: 0,
       ),
-      body: ListView.builder(
+      body: FutureBuilder<List<dynamic>>(
+        future: notificationsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erreur : \\${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('Aucune notification trouvée.'));
+          }
+          final notifications = snapshot.data!;
+          return ListView.builder(
         padding: EdgeInsets.only(top: 8),
         itemCount: notifications.length,
         itemBuilder: (context, index) {
           final notification = notifications[index];
-          return _buildNotificationCard(notification, index);
-        },
-      ),
-    );
-  }
-
-  Widget _buildNotificationCard(NotificationItem notification, int index) {
-    // Index ajouté en paramètre
+              final date = DateTime.tryParse(notification['date'] ?? '') ?? DateTime.now();
     final dateFormat = DateFormat('EEEE, d MMMM y à HH:mm:ss', 'fr_FR');
-    final formattedDate = dateFormat.format(notification.date);
-
+              final formattedDate = dateFormat.format(date);
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -106,7 +95,6 @@ class NotificationsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            // Correction de la syntaxe ici
             color: Colors.black12,
             blurRadius: 6,
             offset: Offset(0, 2),
@@ -116,74 +104,39 @@ class NotificationsScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (notification.hasCheckbox)
             Padding(
               padding: EdgeInsets.only(left: 16, top: 16),
-              child: Row(
-                children: [
-                  Checkbox(
-                    value: notification.isChecked ?? false,
-                    onChanged: (value) {},
-                    activeColor: primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    notification.title,
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color:
-                          notification.isRead ? Colors.grey[600] : primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          else
-            Padding(
-              padding: EdgeInsets.only(left: 16, top: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    notification.title,
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color:
-                          notification.isRead ? Colors.grey[600] : primaryColor,
-                    ),
-                  ),
-                  if (notification.subtitle != null)
-                    Padding(
-                      padding: EdgeInsets.only(top: 4),
                       child: Text(
-                        notification.subtitle!,
+                        notification['title'] ?? '',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                          color: notification['isRead'] == true ? Colors.grey[600] : primaryColor,
+                        ),
+                      ),
+                    ),
+                    if (notification['subtitle'] != null)
+                    Padding(
+                        padding: EdgeInsets.only(left: 16, top: 4),
+                      child: Text(
+                          notification['subtitle'],
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           color: Colors.grey[600],
                         ),
                       ),
                     ),
-                ],
-              ),
-            ),
-
-          if (notification.message != null)
+                    if (notification['message'] != null)
             Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Text(
-                notification.message!,
+                          notification['message'],
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   color: Colors.grey[800],
                 ),
               ),
             ),
-
           Padding(
             padding: EdgeInsets.fromLTRB(16, 12, 16, 16),
             child: Text(
@@ -195,10 +148,14 @@ class NotificationsScreen extends StatelessWidget {
               ),
             ),
           ),
-
           if (index < notifications.length - 1)
             Divider(height: 1, color: Colors.grey[200]),
         ],
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
@@ -222,4 +179,14 @@ class NotificationItem {
     this.hasCheckbox = false,
     this.isChecked,
   });
+}
+
+Future<void> fetchNotifications(String token) async {
+  final response = await ApiService.getNotifications(token);
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    print('Notifications : ' + data.toString());
+  } else {
+    print('Erreur lors de la récupération des notifications : ' + response.body);
+  }
 }

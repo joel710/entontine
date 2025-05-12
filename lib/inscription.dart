@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'services/api_service.dart';
+import 'dart:convert';
 
 class InscriptionScreen extends StatefulWidget {
   @override
@@ -69,6 +71,20 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
       keyboardType: type,
       decoration: champDecoration(label).copyWith(prefix: prefix),
     );
+  }
+
+  void register() async {
+    final response = await ApiService.register(
+      _nomController.text,
+      _emailController.text,
+      _passwordController.text,
+    );
+    if (response.statusCode == 201) {
+      // Succès, propose de se connecter
+      print('Inscription réussie');
+    } else {
+      print('Erreur d\'inscription : ' + response.body);
+    }
   }
 
   @override
@@ -176,6 +192,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                     }
                     if (_formKey.currentState!.validate()) {
                       // Logique d'inscription
+                      register();
                       Navigator.pushReplacementNamed(context, '/tontine');
                     }
                   },

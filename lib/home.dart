@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'services/api_service.dart';
+import 'dart:convert';
 
 import 'profil.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final String token;
+  const HomeScreen({super.key, required this.token});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -25,34 +28,63 @@ class _HomeScreenState extends State<HomeScreen> {
   );
   final Color backgroundColor = Color(0xFFF5F5F5);
 
+  late Future<Map<String, dynamic>> dashboardFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    dashboardFuture = fetchDashboard();
+  }
+
+  Future<Map<String, dynamic>> fetchDashboard() async {
+    final response = await ApiService.getDashboard(widget.token);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Erreur lors du chargement du dashboard');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildTopSection(),
-              SizedBox(height: 16),
-              _buildPromoCard(),
-              SizedBox(height: 16),
-              _buildRecentTransactions(),
-              SizedBox(height: 6),
-              _buildRecentTransactions(),
-              SizedBox(height: 16),
-              _buildReferralSection(),
-
-              SizedBox(height: 16),
-            ],
-          ),
+        child: FutureBuilder<Map<String, dynamic>>(
+          future: dashboardFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Erreur : \\${snapshot.error}'));
+            } else if (!snapshot.hasData) {
+              return Center(child: Text('Aucune donnée trouvée.'));
+            }
+            final data = snapshot.data!;
+            final balance = data['balance']?.toString() ?? '0 CFA';
+            final transactions = data['transactions'] ?? [];
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildTopSection(balance),
+                  SizedBox(height: 16),
+                  _buildPromoCard(),
+                  SizedBox(height: 16),
+                  _buildRecentTransactions(transactions),
+                  SizedBox(height: 16),
+                  _buildReferralSection(),
+                  SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
         ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
-  Widget _buildTopSection() {
+  Widget _buildTopSection(String balance) {
     return Stack(
       children: [
         Container(
@@ -77,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ProfilScreen()),
+                        MaterialPageRoute(builder: (context) => ProfilScreen(token: widget.token)),
                       );
                     },
                     child: CircleAvatar(
@@ -95,12 +127,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.pushNamed(
                         context,
                         '/notification',
-                      ); // Utilisez votre nom de route
+                      );
                     },
                   ),
                 ],
               ),
-
               SizedBox(height: 24),
               Text(
                 "Balance",
@@ -110,10 +141,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontWeight: FontWeight.w400,
                 ),
               ),
-
               SizedBox(height: 6),
               Text(
-                "34600 CFA",
+                balance,
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 36,
@@ -121,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               SizedBox(height: 24),
-              SizedBox(height: 40), // Espace pour la boîte blanche
+              SizedBox(height: 40),
             ],
           ),
         ),
@@ -166,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Container(
                     padding: EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.1),
+                      color: primaryColor.withAlpha((0.1 * 255).toInt()),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -247,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildRecentTransactions() {
+  Widget _buildRecentTransactions(List<dynamic> transactions) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -261,26 +291,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           SizedBox(height: 12),
-          Container(
+          ...transactions.take(3).map((transaction) => Container(
+            margin: EdgeInsets.only(bottom: 8),
             padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "18 Avril 2025 18:50",
+                      transaction['date'] ?? '',
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.grey,
                       ),
                     ),
                     Text(
-                      "250 CFA",
+                      transaction['amount'] ?? '',
                       style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -290,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        "ECOM-SHOP +212689679048 GB - insuffici...",
+                        transaction['service'] ?? '',
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
                       ),
                     ),
@@ -298,17 +330,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-          ),
-          SizedBox(height: 8),
-          Center(
-            child: Text(
-              "Voir plus",
-              style: GoogleFonts.poppins(
-                color: primaryColor,
-                fontWeight: FontWeight.w500,
+          )),
+          if (transactions.isNotEmpty)
+            Center(
+              child: Text(
+                "Voir plus",
+                style: GoogleFonts.poppins(
+                  color: primaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
