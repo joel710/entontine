@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class WithdrawPageScreen extends StatefulWidget {
   const WithdrawPageScreen({Key? key, required token}) : super(key: key);
@@ -22,6 +25,86 @@ class _WithdrawPageState extends State<WithdrawPageScreen> {
         inputAmount += value;
       }
     });
+  }
+
+  void handleWithdraw() async {
+    setState(() { }); // Pour afficher le loader si besoin
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Erreur'),
+          content: Text('Utilisateur non connecté.'),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text('OK'))],
+        ),
+      );
+      return;
+    }
+    final montant = double.tryParse(inputAmount) ?? 0;
+    final phone = phoneController.text.trim();
+    final service = selectedMethod.toLowerCase();
+    final identifier = DateTime.now().millisecondsSinceEpoch.toString() + user.id.substring(0, 6);
+    // 1. Créer la transaction dans Supabase
+    final insertResult = await Supabase.instance.client.from('transactions').insert({
+      'user_id': user.id,
+      'type': 'retrait',
+      'montant': montant,
+      'service': service,
+      'status': 'en_attente',
+      'date': DateTime.now().toIso8601String(),
+      'details': {'phone': phone},
+      'identifier': identifier,
+    }).select().single();
+    final transactionId = insertResult['id'];
+    // 2. Appeler l'API Paygate
+    final paygateResponse = await http.post(
+      Uri.parse('https://paygateglobal.com/api/v1/pay'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'auth_token': '15c15ac9-b802-48d8-9d26-d7e2338a18d2',
+        'phone_number': phone,
+        'amount': montant,
+        'description': 'Retrait eTontine',
+        'identifier': identifier,
+        'network': service == 'moov' ? 'FLOOZ' : 'TMONEY',
+      }),
+    );
+    String status = 'en_attente';
+    String txReference = '';
+    if (paygateResponse.statusCode == 200) {
+      final data = jsonDecode(paygateResponse.body);
+      txReference = data['tx_reference'] ?? '';
+      if (data['status'] == 0) {
+        status = 'reussi';
+      } else {
+        status = 'echoue';
+      }
+    } else {
+      status = 'echoue';
+    }
+    // 3. Mettre à jour la transaction dans Supabase
+    await Supabase.instance.client.from('transactions').update({
+      'status': status,
+      'details': {'phone': phone, 'tx_reference': txReference},
+    }).eq('id', transactionId);
+    // 4. Afficher le résultat
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(status == 'reussi' ? 'Succès' : 'Erreur'),
+        content: Text(status == 'reussi'
+            ? 'Retrait effectué avec succès !'
+            : 'Le paiement a échoué ou a été annulé.'),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text('OK'))],
+      ),
+    );
+    if (status == 'reussi') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const WithdrawalSuccessPage()),
+      );
+    }
   }
 
   @override
@@ -153,15 +236,7 @@ class _WithdrawPageState extends State<WithdrawPageScreen> {
                         onPressed:
                             inputAmount.isEmpty || phoneController.text.isEmpty
                                 ? null
-                                : () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (_) => const WithdrawalSuccessPage(),
-                                    ),
-                                  );
-                                },
+                                : handleWithdraw,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(
                             33,
