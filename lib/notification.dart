@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'services/api_service.dart';
 import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class NotificationsScreen extends StatefulWidget {
   final String token;
@@ -23,9 +24,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<List<dynamic>> fetchNotifications() async {
-    // Suppression de l'appel API, retour d'une liste vide
-    await Future.delayed(Duration(milliseconds: 300));
-    return [];
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return [];
+    final notifications = await Supabase.instance.client
+        .from('notifications')
+        .select()
+        .eq('user_id', user.id)
+        .order('created_at', ascending: false)
+        .limit(20);
+    return notifications;
   }
 
   @override

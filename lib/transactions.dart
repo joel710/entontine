@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'services/api_service.dart';
 import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TransactionScreen extends StatefulWidget {
   final String token;
@@ -20,9 +21,15 @@ class _TransactionScreenState extends State<TransactionScreen> {
   }
 
   Future<List<dynamic>> fetchTransactions() async {
-    // Suppression de l'appel API, retour d'une liste vide
-    await Future.delayed(Duration(milliseconds: 300));
-    return [];
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return [];
+    final transactions = await Supabase.instance.client
+        .from('transactions')
+        .select()
+        .eq('user_id', user.id)
+        .order('date', ascending: false)
+        .limit(50);
+    return transactions;
   }
 
   Icon _buildStatusIcon(String status) {
