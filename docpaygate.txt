@@ -1,0 +1,144 @@
+
+Guide d'Intégration
+Ce guide est fait à l'attention de votre technicien.
+Votre clé API: 15c15ac9-b802-48d8-9d26-d7e2338a18d2
+Demander un paiement - Méthode 1
+
+Pour initier une transaction, faites un simple appel HTTP de type Post vers le service web de PayGateGlobal et passer les paramètres requis.
+
+Services: FLOOZ, TMONEY
+URL 	https://paygateglobal.com/api/v1/pay
+Methode 	HTTP Post
+Format d'échange de données 	JSON
+
+Le service web attend les paramètres suivants.
+Nom 	Description 	Requis
+auth_token 	Jeton d’authentification de l’e-commerce (Clé API) 	OUI
+phone_number 	Numéro de téléphone mobile du Client 	OUI
+amount 	Montant de la transaction sans la devise (Devise par défaut: FCFA) 	OUI
+description 	Détails de la transaction 	NON
+identifier 	Identifiant interne de la transaction de l’e-commerce. Cet identifiant doit etre unique. 	OUI
+network 	valeurs possibles: FLOOZ, TMONEY 	OUI
+
+Le service web renvoie la réponse suivante.
+Nom 	Description
+tx_reference 	Identifiant Unique générée par PayGateGlobal pour la transaction
+status 	Code d’état de la transaction.
+
+Les valeurs possible de la transaction sont:
+0 : Transaction enregistrée avec succès
+2 : Jeton d’authentification invalide
+4 : Paramètres Invalides
+6 : Doublons détectées. Une transaction avec le même identifiant existe déja.
+
+Demander un paiement - Méthode 2
+
+Cette deuxième méthode permet de rediriger le client vers une page de paiement mise à votre disposition. Cette page est accessible via le lien ci dessous.
+
+Services: FLOOZ, TMONEY
+URL 	https://paygateglobal.com/v1/page
+Methode 	HTTP Get
+Format d'échange de données 	QUERY STRING
+
+Le lien doit contenir les les paramètres suivants.
+Nom 	Description 	Requis
+token 	Jeton d’authentification de l’e-commerce (Clé API) 	OUI
+amount 	Montant de la transaction sans la devise (Devise par défaut: FCFA) 	OUI
+description 	Détails de la transaction 	NON
+identifier 	Identifiant interne de la transaction de l’e-commerce. ex: Numero de commande. Cet identifiant doit etre unique. 	OUI
+url 	Lien de la page vers laquelle le client sera redirigé après le paiement 	NON
+phone 	Numéro de téléphone du client 	NON
+network 	Réseau du numéro de téléphone (ex: MOOV, TOGOCEL). Si ce parametre n'est pas fourni, le client devra manuellement choisir son réseau. 	NON
+
+Le client sera redirigé vers une page de paygate global.
+exemple: https://paygateglobal.com/v1/page?token=1234&amount=300&description=test&identifier=10
+Recevoir une confirmation de paiement
+
+Une fois le paiement effectué par le client, PayGateGlobal enverra un message de confirmation à l’URL de retour de l’e-commerce (Si précédemment fourni).
+Le message est structuré comme suit:
+
+Services: FLOOZ, T-Money
+Methode 	HTTP Post
+Format d'échange de données 	JSON
+Nom 	Description
+tx_reference 	Identifiant Unique générée par PayGateGlobal pour la transaction
+identifier 	Identifiant interne de la transaction de l’e-commerce. ex: Numero de commande Cet identifiant doit etre unique.
+payment_reference 	Code de référence de paiement généré par Flooz. Ce code peut être utilisé en cas de résolution de problèmes ou de plaintes.
+amount 	Montant payé par le client
+datetime 	Date and Heure de paiement
+payment_method 	Méthode de paiement utilisée par le client. Valeurs possibles: FLOOZ, T-Money
+phone_number 	Numéro de téléphone du client qui a effectué le paiement.
+
+Vérifier l'état d'un Paiement
+
+L’e-commerce peut à n’importe quel moment vérifier l'état d’une transaction en faisant appel au service web suivant.
+
+Services: FLOOZ, T-Money
+URL 	https://paygateglobal.com/api/v1/status
+Methode 	HTTP Post
+Format d'échange de données 	JSON
+
+Le service web attend les paramètres suivants.
+Nom 	Description 	Requis
+auth_token 	Jeton d’authentification de l’e-commerce (Clé API) 	OUI
+tx_reference 	Identifiant Unique précédemment généré par PayGateGlobal pour la transaction 	OUI
+
+Le service web renvoie la réponse suivante.
+Nom 	Description
+tx_reference 	Identifiant Unique généré par PayGateGlobal pour la transaction
+identifier 	Identifiant interne de la transaction de l’e-commerce. ex: Numero de commande Cet identifiant doit etre unique.
+payment_reference 	Code de référence de paiement généré par Flooz/TMoney. Ce code peut être utilisé en cas de résolution de problèmes ou de plaintes.
+status 	Code d’état du paiement.
+datetime 	Date et Heure du paiement
+payment_method 	Méthode de paiement utilisée par le client. Valeurs possibles: FLOOZ, T-Money
+
+Méthode alternative pour verifier l'etat d'une transaction en utilisant l'identifiant unique de l'ecommerçant (ex: Numero de la commande).
+URL 	https://paygateglobal.com/api/v2/status
+Methode 	HTTP Post
+Format d'échange de données 	JSON
+
+Le service web attend les paramètres suivants.
+Nom 	Description 	Requis
+auth_token 	Jeton d’authentification de l’e-commerce (Clé API) 	OUI
+identifier 	Identifiant Unique précédemment généré par l'Ecommerçant pour la transaction 	OUI
+
+Le service web renvoie la réponse suivante.
+Nom 	Description
+tx_reference 	Identifiant Unique généré par PayGateGlobal pour la transaction
+payment_reference 	Code de référence de paiement généré par Flooz/TMoney. Ce code peut être utilisé en cas de résolution de problèmes ou de plaintes.
+status 	Code d’état du paiement.
+datetime 	Date et Heure du paiement
+payment_method 	Méthode de paiement utilisée par le client. Valeurs possibles: FLOOZ, T-Money
+
+Les valeurs possibles de l’état de paiement sont:
+0 : Paiement réussi avec succès 2 : En cours 4 : Expiré 6: Annulé
+
+Les détails de transaction et état de paiement peuvent être visualisés sur le tableau de bord en ligne de l’e-commerce.
+
+Consulter votre Solde
+
+Cet API vous permet de consulter votre solde Flooz et TMoney. Attention: Seules les requêtes provenant de votre adresse IP préalablement whitelistée seront autorisées.
+
+Services: FLOOZ, T-Money
+URL 	https://paygateglobal.com/api/v1/check-balance
+Methode 	HTTP Post
+Format d'échange de données 	JSON
+
+Le service web attend les paramètres suivants.
+Nom 	Description 	Requis
+auth_token 	Jeton d’authentification de l’e-commerce (Clé API) 	OUI
+
+Le service web renvoie la réponse suivante.
+Nom 	Description
+flooz 	Solde de votre compte Flooz
+tmoney 	Solde de votre compte TMoney
+
+
+Securité
+
+La sécurité étant primordiale, à toutes les étapes du processus nous nous assurons que:
+
+    Les numéros de téléphone soient encryptés
+    Toutes les communications soient encryptées et signées via SSL/TLS
+    Le système PayGateGlobal est protégé contre les risqué de sécurité connus tells que les Dénis de services, les injections SQL...
+    Les données sont sauvegardées par incrément et répliqués sur des serveurs en différentes locations géographiques pour une haute accessibilité et un taux de récupération rapide en cas de désastre, cependant très improbable.

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'services/api_service.dart';
 import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:http/http.dart' as http;
 
 class SendMoneyPageScreen extends StatefulWidget {
   final String token;
@@ -30,16 +32,100 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
     setState(() {
       isLoading = true;
     });
-    await Future.delayed(Duration(milliseconds: 500));
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+    final service = args?['service'] ?? '';
+    final phone = args?['phone'] ?? '';
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) {
+      setState(() {
+        isLoading = false;
+      });
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: Text('Erreur'),
+              content: Text('Utilisateur non connecté.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK'),
+                ),
+              ],
+            ),
+      );
+      return;
+    }
+    final montant = double.tryParse(inputAmount) ?? 0;
+    final identifier =
+        DateTime.now().millisecondsSinceEpoch.toString() +
+        user.id.substring(0, 6);
+    // 1. Créer la transaction dans Supabase
+    final insertResult =
+        await Supabase.instance.client
+            .from('transactions')
+            .insert({
+              'user_id': user.id,
+              'type': 'depot',
+              'montant': montant,
+              'service': service,
+              'status': 'en_attente',
+              'date': DateTime.now().toIso8601String(),
+              'details': {'phone': phone},
+              'identifier': identifier,
+            })
+            .select()
+            .single();
+    final transactionId = insertResult['id'];
+    // 2. Appeler l'API Paygate
+    final paygateResponse = await http.post(
+      Uri.parse('https://paygateglobal.com/api/v1/pay'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'auth_token': '15c15ac9-b802-48d8-9d26-d7e2338a18d2',
+        'phone_number': phone,
+        'amount': montant,
+        'description': 'Dépôt eTontine',
+        'identifier': identifier,
+        'network': service == 'moov' ? 'FLOOZ' : 'TMONEY',
+      }),
+    );
+    String status = 'en_attente';
+    String txReference = '';
+    if (paygateResponse.statusCode == 200) {
+      final data = jsonDecode(paygateResponse.body);
+      txReference = data['tx_reference'] ?? '';
+      if (data['status'] == 0) {
+        status = 'reussi';
+      } else {
+        status = 'echoue';
+      }
+    } else {
+      status = 'echoue';
+    }
+    // 3. Mettre à jour la transaction dans Supabase
+    await Supabase.instance.client
+        .from('transactions')
+        .update({
+          'status': status,
+          'details': {'phone': phone, 'tx_reference': txReference},
+        })
+        .eq('id', transactionId);
     setState(() {
       isLoading = false;
     });
+    // 4. Afficher le résultat
     showDialog(
       context: context,
       builder:
           (_) => AlertDialog(
-            title: Text('Succès'),
-            content: Text('Dépôt effectué avec succès !'),
+            title: Text(status == 'reussi' ? 'Succès' : 'Erreur'),
+            content: Text(
+              status == 'reussi'
+                  ? 'Dépôt effectué avec succès !'
+                  : 'Le paiement a échoué ou a été annulé.',
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),

@@ -92,8 +92,16 @@ class _PaymentMethodPageScreenState extends State<PaymentMethodPageScreen> {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      if (phoneController.text.isNotEmpty) {
-                        Navigator.pushNamed(context, '/depot');
+                      if (phoneController.text.isNotEmpty &&
+                          selectedMethod != null) {
+                        Navigator.pushNamed(
+                          context,
+                          '/depot',
+                          arguments: {
+                            'service': selectedMethod,
+                            'phone': phoneController.text.trim(),
+                          },
+                        );
                       }
                     },
                     style: ElevatedButton.styleFrom(
