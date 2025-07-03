@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'services/api_service.dart';
 import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'profil.dart';
 
@@ -37,8 +38,31 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<Map<String, dynamic>> fetchDashboard() async {
-    await Future.delayed(Duration(milliseconds: 300));
-    return {'balance': '0 CFA', 'transactions': []};
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) {
+      return {'balance': '0 CFA', 'transactions': []};
+    }
+    // Récupérer les transactions de l'utilisateur
+    final transactions = await Supabase.instance.client
+        .from('transactions')
+        .select()
+        .eq('user_id', user.id)
+        .order('date', ascending: false)
+        .limit(10);
+    // Calculer la balance (somme des dépôts réussis)
+    double balance = 0;
+    for (final tx in transactions) {
+      if (tx['type'] == 'depot' && tx['status'] == 'reussi') {
+        balance += double.tryParse(tx['montant'].toString()) ?? 0;
+      }
+      if (tx['type'] == 'retrait' && tx['status'] == 'reussi') {
+        balance -= double.tryParse(tx['montant'].toString()) ?? 0;
+      }
+    }
+    return {
+      'balance': '${balance.toStringAsFixed(0)} CFA',
+      'transactions': transactions,
+    };
   }
 
   @override
