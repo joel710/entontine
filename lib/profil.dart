@@ -14,6 +14,9 @@ class ProfilScreen extends StatefulWidget {
 class _ProfilScreenState extends State<ProfilScreen> {
   bool _isEditing = false;
   late Future<Map<String, dynamic>?> profilFuture;
+  final TextEditingController _nomController = TextEditingController();
+  final TextEditingController _prenomController = TextEditingController();
+  final TextEditingController _telController = TextEditingController();
 
   @override
   void initState() {
@@ -24,13 +27,37 @@ class _ProfilScreenState extends State<ProfilScreen> {
   Future<Map<String, dynamic>?> fetchProfil() async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return null;
-    final response =
-        await Supabase.instance.client
-            .from('profiles')
-            .select()
-            .eq('id', user.id)
-            .single();
+    final response = await Supabase.instance.client
+        .from('profiles')
+        .select()
+        .eq('id', user.id)
+        .single();
+    _nomController.text = response['last_name'] ?? '';
+    _prenomController.text = response['first_name'] ?? '';
+    _telController.text = response['phone_number'] ?? '';
     return response;
+  }
+
+  Future<void> updateProfil() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+    await Supabase.instance.client.from('profiles').update({
+      'last_name': _nomController.text.trim(),
+      'first_name': _prenomController.text.trim(),
+      'phone_number': _telController.text.trim(),
+    }).eq('id', user.id);
+    setState(() {
+      _isEditing = false;
+      profilFuture = fetchProfil();
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Profil mis à jour avec succès.')),
+    );
+  }
+
+  Future<void> logout() async {
+    await Supabase.instance.client.auth.signOut();
+    Navigator.pushReplacementNamed(context, '/connexion');
   }
 
   @override
@@ -53,9 +80,13 @@ class _ProfilScreenState extends State<ProfilScreen> {
           IconButton(
             icon: Icon(_isEditing ? Icons.save : Icons.edit),
             onPressed: () {
-              setState(() {
-                _isEditing = !_isEditing;
-              });
+              if (_isEditing) {
+                updateProfil();
+              } else {
+                setState(() {
+                  _isEditing = true;
+                });
+              }
             },
           ),
         ],
@@ -70,11 +101,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
           } else if (!snapshot.hasData || snapshot.data == null) {
             return Center(child: Text('Aucune donnée trouvée.'));
           }
-          final data = snapshot.data!;
-          final nom = data['last_name'] ?? '';
-          final prenom = data['first_name'] ?? '';
-          final email = data['username'] ?? '';
-          final tel = data['phone_number'] ?? '';
+          // final data = snapshot.data!;
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Column(
@@ -85,20 +112,20 @@ class _ProfilScreenState extends State<ProfilScreen> {
                 ),
                 SizedBox(height: 16),
                 TextField(
-                  controller: TextEditingController(text: '$prenom $nom'),
-                  enabled: false,
-                  decoration: _inputDecoration("Nom complet"),
+                  controller: _prenomController,
+                  enabled: _isEditing,
+                  decoration: _inputDecoration("Prénom"),
                 ),
                 SizedBox(height: 12),
                 TextField(
-                  controller: TextEditingController(text: email),
-                  enabled: false,
-                  decoration: _inputDecoration("Adresse email"),
+                  controller: _nomController,
+                  enabled: _isEditing,
+                  decoration: _inputDecoration("Nom"),
                 ),
                 SizedBox(height: 12),
                 TextField(
-                  controller: TextEditingController(text: tel),
-                  enabled: false,
+                  controller: _telController,
+                  enabled: _isEditing,
                   decoration: _inputDecoration("Téléphone"),
                 ),
                 SizedBox(height: 30),
@@ -135,9 +162,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                 ),
                 SizedBox(height: 16),
                 ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/connexion');
-                  },
+                  onPressed: logout,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,
                     padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
