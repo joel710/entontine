@@ -85,7 +85,8 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
       return;
     }
     final tontine = tontines[0];
-    final montantCotisation = double.tryParse(tontine['montant'].toString()) ?? 0;
+    final montantCotisation =
+        double.tryParse(tontine['montant'].toString()) ?? 0;
     final tontineId = tontine['id'];
     // 2. Vérifier que le montant du dépôt est suffisant
     if (montant < montantCotisation) {
@@ -188,143 +189,177 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.from(
-        alpha: 1,
-        red: 0.129,
-        green: 0.588,
-        blue: 0.953,
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Back & Title
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/payement');
-                    },
-                    child: const Icon(Icons.arrow_back, color: Colors.white),
-                  ),
-                  const SizedBox(width: 16),
-                  const Text(
-                    "Send Money",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Beneficiary Card
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/avatar.png'),
-                    radius: 24,
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        "Clarissa Bates",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: fetchUserProfile(),
+      builder: (context, snapshot) {
+        final userName = snapshot.data?['fullName'] ?? '';
+        final userPhone = snapshot.data?['phone'] ?? '';
+        return Scaffold(
+          backgroundColor: const Color.from(
+            alpha: 1,
+            red: 0.129,
+            green: 0.588,
+            blue: 0.953,
+          ),
+          body: SafeArea(
+            child: Column(
+              children: [
+                // Back & Title
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, '/payement');
+                        },
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                        ),
                       ),
-                      Text(
-                        "Bank - 0002 1887 2532",
-                        style: TextStyle(color: Colors.grey),
+                      const SizedBox(width: 16),
+                      const Text(
+                        "Send Money",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-
-            // Amount Display
-            Text(
-              inputAmount.isEmpty ? "\$0.00" : "\$${inputAmount}",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            // Keyboard & Button
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    Expanded(
-                      child: GridView.count(
-                        crossAxisCount: 3,
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        children: List.generate(12, (index) {
-                          if (index < 9) {
-                            return buildKey('${index + 1}');
-                          } else if (index == 9) {
-                            return const SizedBox(); // vide
-                          } else if (index == 10) {
-                            return buildKey('0');
-                          } else {
-                            return buildKey('del');
-                          }
-                        }),
+
+                // Beneficiary Card
+                Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const CircleAvatar(
+                        backgroundImage: AssetImage('assets/images/avatar.png'),
+                        radius: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userName,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            userPhone,
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Amount Display
+                Text(
+                  inputAmount.isEmpty ? "0 FCFA" : "$inputAmount FCFA",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                // Keyboard & Button
+                Expanded(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child:
-                          isLoading
-                              ? CircularProgressIndicator()
-                              : ElevatedButton(
-                                onPressed:
-                                    inputAmount.isEmpty ? null : handleDeposit,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.from(
-                                    alpha: 1,
-                                    red: 0.129,
-                                    green: 0.588,
-                                    blue: 0.953,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: GridView.count(
+                            crossAxisCount: 3,
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            children: List.generate(12, (index) {
+                              if (index < 9) {
+                                return buildKey('${index + 1}');
+                              } else if (index == 9) {
+                                return const SizedBox(); // vide
+                              } else if (index == 10) {
+                                return buildKey('0');
+                              } else {
+                                return buildKey('del');
+                              }
+                            }),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child:
+                              isLoading
+                                  ? CircularProgressIndicator()
+                                  : ElevatedButton(
+                                    onPressed:
+                                        inputAmount.isEmpty
+                                            ? null
+                                            : handleDeposit,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color.from(
+                                        alpha: 1,
+                                        red: 0.129,
+                                        green: 0.588,
+                                        blue: 0.953,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 80,
+                                        vertical: 16,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                    ),
+                                    child: const Text("Continuer"),
                                   ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 80,
-                                    vertical: 16,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                ),
-                                child: const Text("Continuer"),
-                              ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
+  }
+
+  Future<Map<String, dynamic>?> fetchUserProfile() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return null;
+    final profile =
+        await Supabase.instance.client
+            .from('profiles')
+            .select()
+            .eq('id', user.id)
+            .single();
+    return {
+      'fullName':
+          ((profile['first_name'] ?? '') + ' ' + (profile['last_name'] ?? ''))
+              .trim(),
+      'phone': profile['phone_number'] ?? '',
+    };
   }
 
   Widget buildKey(String value) {
