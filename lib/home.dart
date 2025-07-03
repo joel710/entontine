@@ -37,12 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<Map<String, dynamic>> fetchDashboard() async {
-    final response = await ApiService.getDashboard(widget.token);
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Erreur lors du chargement du dashboard');
-    }
+    await Future.delayed(Duration(milliseconds: 300));
+    return {'balance': '0 CFA', 'transactions': []};
   }
 
   @override
@@ -64,18 +60,18 @@ class _HomeScreenState extends State<HomeScreen> {
             final balance = data['balance']?.toString() ?? '0 CFA';
             final transactions = data['transactions'] ?? [];
             return SingleChildScrollView(
-          child: Column(
-            children: [
+              child: Column(
+                children: [
                   _buildTopSection(balance),
-              SizedBox(height: 16),
-              _buildPromoCard(),
-              SizedBox(height: 16),
+                  SizedBox(height: 16),
+                  _buildPromoCard(),
+                  SizedBox(height: 16),
                   _buildRecentTransactions(transactions),
-              SizedBox(height: 16),
-              _buildReferralSection(),
-              SizedBox(height: 16),
-            ],
-          ),
+                  SizedBox(height: 16),
+                  _buildReferralSection(),
+                  SizedBox(height: 16),
+                ],
+              ),
             );
           },
         ),
@@ -109,7 +105,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ProfilScreen(token: widget.token)),
+                        MaterialPageRoute(
+                          builder:
+                              (context) => ProfilScreen(token: widget.token),
+                        ),
                       );
                     },
                     child: CircleAvatar(
@@ -124,10 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       size: 28,
                     ),
                     onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/notification',
-                      );
+                      Navigator.pushNamed(context, '/notification');
                     },
                   ),
                 ],
@@ -291,56 +287,64 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           SizedBox(height: 12),
-          ...transactions.take(3).map((transaction) => Container(
-            margin: EdgeInsets.only(bottom: 8),
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      transaction['date'] ?? '',
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.grey,
+          ...transactions
+              .take(3)
+              .map(
+                (transaction) => Container(
+                  margin: EdgeInsets.only(bottom: 8),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            transaction['date'] ?? '',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          Text(
+                            transaction['amount'] ?? '',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    Text(
-                      transaction['amount'] ?? '',
-                      style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        transaction['service'] ?? '',
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              transaction['service'] ?? '',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          )),
+              ),
           if (transactions.isNotEmpty)
-          Center(
-            child: Text(
-              "Voir plus",
-              style: GoogleFonts.poppins(
-                color: primaryColor,
-                fontWeight: FontWeight.w500,
+            Center(
+              child: Text(
+                "Voir plus",
+                style: GoogleFonts.poppins(
+                  color: primaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

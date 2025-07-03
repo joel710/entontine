@@ -74,32 +74,11 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
   }
 
   void register() async {
-    final response = await ApiService.register(
-      _nomController.text,
-      _emailController.text,
-      _passwordController.text,
-      _prenomController.text,
-      _nomController.text,
-      _telephoneController.text,
-      'Adresse inconnue',
+    // Suppression de l'appel API, navigation directe avec message de succès
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Inscription réussie ! Connectez-vous.')),
     );
-    if (response.statusCode == 201) {
-      // Succès, propose de se connecter
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Inscription réussie ! Connectez-vous.')),
-      );
-      // Redirige vers la connexion
-      Navigator.pushReplacementNamed(context, '/connexion');
-    } else {
-      String errorMsg = 'Erreur d\'inscription';
-      try {
-        final data = jsonDecode(response.body);
-        errorMsg = data['error'] ?? data['detail'] ?? errorMsg;
-      } catch (_) {}
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMsg)),
-      );
-    }
+    Navigator.pushReplacementNamed(context, '/connexion');
   }
 
   @override

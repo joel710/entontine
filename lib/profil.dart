@@ -21,12 +21,13 @@ class _ProfilScreenState extends State<ProfilScreen> {
   }
 
   Future<Map<String, dynamic>> fetchProfil() async {
-    final response = await ApiService.getDashboard(widget.token); // À adapter si endpoint spécifique profil
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Erreur lors du chargement du profil');
-    }
+    // Suppression de l'appel API, retour de données statiques
+    await Future.delayed(Duration(milliseconds: 300));
+    return {
+      'nom': 'Nom Test',
+      'email': 'test@email.com',
+      'telephone': '+22800000000',
+    };
   }
 
   @override
@@ -71,83 +72,83 @@ class _ProfilScreenState extends State<ProfilScreen> {
           final email = data['email'] ?? '';
           final tel = data['telephone'] ?? '';
           return SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Column(
-          children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage('assets/images/avatar.png'),
-            ),
-            SizedBox(height: 16),
-            TextField(
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: AssetImage('assets/images/avatar.png'),
+                ),
+                SizedBox(height: 16),
+                TextField(
                   controller: TextEditingController(text: nom),
-              enabled: _isEditing,
-              decoration: _inputDecoration("Nom complet"),
-            ),
-            SizedBox(height: 12),
-            TextField(
+                  enabled: _isEditing,
+                  decoration: _inputDecoration("Nom complet"),
+                ),
+                SizedBox(height: 12),
+                TextField(
                   controller: TextEditingController(text: email),
-              enabled: _isEditing,
-              decoration: _inputDecoration("Adresse email"),
-            ),
-            SizedBox(height: 12),
-            TextField(
+                  enabled: _isEditing,
+                  decoration: _inputDecoration("Adresse email"),
+                ),
+                SizedBox(height: 12),
+                TextField(
                   controller: TextEditingController(text: tel),
-              enabled: _isEditing,
-              decoration: _inputDecoration("Téléphone"),
-            ),
-            SizedBox(height: 30),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Dernières actions",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent,
+                  enabled: _isEditing,
+                  decoration: _inputDecoration("Téléphone"),
                 ),
-              ),
-            ),
-            SizedBox(height: 12),
+                SizedBox(height: 30),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Dernières actions",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12),
                 // Afficher ici les dernières actions si disponibles dans l'API
-            SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.pushNamed(context, '/changer_mot_de_passe');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                SizedBox(height: 30),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/changer_mot_de_passe');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: Icon(Icons.lock_reset),
+                  label: Text(
+                    "Changer le mot de passe",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              icon: Icon(Icons.lock_reset),
-              label: Text(
-                "Changer le mot de passe",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/connexion');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/connexion');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: Icon(Icons.logout),
+                  label: Text(
+                    "Déconnexion",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              icon: Icon(Icons.logout),
-              label: Text(
-                "Déconnexion",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              ],
             ),
-          ],
-        ),
           );
         },
       ),

@@ -27,14 +27,17 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
   }
 
   void handleDeposit() async {
-    setState(() { isLoading = true; });
-    try {
-      final response = await ApiService.deposit(widget.token, double.tryParse(inputAmount) ?? 0);
-      setState(() { isLoading = false; });
-      if (response.statusCode == 201) {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
+    setState(() {
+      isLoading = true;
+    });
+    await Future.delayed(Duration(milliseconds: 500));
+    setState(() {
+      isLoading = false;
+    });
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
             title: Text('Succès'),
             content: Text('Dépôt effectué avec succès !'),
             actions: [
@@ -44,38 +47,7 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
               ),
             ],
           ),
-        );
-      } else {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: Text('Erreur'),
-            content: Text('Erreur lors du dépôt : ' + response.body),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
-      }
-    } catch (e) {
-      setState(() { isLoading = false; });
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text('Erreur'),
-          content: Text('Erreur réseau : ' + e.toString()),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
-    }
+    );
   }
 
   @override
@@ -185,27 +157,29 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(20),
-                      child: isLoading
-                          ? CircularProgressIndicator()
-                          : ElevatedButton(
-                              onPressed: inputAmount.isEmpty ? null : handleDeposit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.from(
-                            alpha: 1,
-                            red: 0.129,
-                            green: 0.588,
-                            blue: 0.953,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 80,
-                            vertical: 16,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                              child: const Text("Continuer"),
-                      ),
+                      child:
+                          isLoading
+                              ? CircularProgressIndicator()
+                              : ElevatedButton(
+                                onPressed:
+                                    inputAmount.isEmpty ? null : handleDeposit,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color.from(
+                                    alpha: 1,
+                                    red: 0.129,
+                                    green: 0.588,
+                                    blue: 0.953,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 80,
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                child: const Text("Continuer"),
+                              ),
                     ),
                   ],
                 ),

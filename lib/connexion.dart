@@ -39,29 +39,12 @@ class _ConnexionScreenState extends State<ConnexionScreen> {
   }
 
   void login() async {
-    final response = await ApiService.login(
-      usernameController.text,
-      passwordController.text,
+    // Suppression de l'appel API, navigation directe avec token factice
+    Navigator.pushReplacementNamed(
+      context,
+      '/home',
+      arguments: {'token': 'dummy_token'},
     );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final token = data['token'];
-      // Navigation vers le dashboard avec le token
-      Navigator.pushReplacementNamed(
-        context,
-        '/home',
-        arguments: {'token': token},
-      );
-    } else {
-      String errorMsg = 'Erreur de connexion';
-      try {
-        final data = jsonDecode(response.body);
-        errorMsg = data['error'] ?? data['detail'] ?? errorMsg;
-      } catch (_) {}
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMsg)),
-      );
-    }
   }
 
   @override

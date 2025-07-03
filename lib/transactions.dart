@@ -20,13 +20,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
   }
 
   Future<List<dynamic>> fetchTransactions() async {
-    final response = await ApiService.getDashboard(widget.token); // À adapter si endpoint spécifique
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['transactions'] ?? [];
-    } else {
-      throw Exception('Erreur lors du chargement des transactions');
-    }
+    // Suppression de l'appel API, retour d'une liste vide
+    await Future.delayed(Duration(milliseconds: 300));
+    return [];
   }
 
   Icon _buildStatusIcon(String status) {
