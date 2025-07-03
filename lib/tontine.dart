@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'services/api_service.dart';
 import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TontineScreen extends StatefulWidget {
   @override
@@ -131,15 +132,41 @@ class _TontineScreenState extends State<TontineScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
-                    // Suppression de l'appel API, message local
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Tontine créée avec succès !')),
-                    );
-                    Navigator.pushReplacementNamed(
-                      context,
-                      '/home',
-                      arguments: {'token': ''},
-                    );
+                    final user = Supabase.instance.client.auth.currentUser;
+                    if (user == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Utilisateur non connecté.')),
+                      );
+                      return;
+                    }
+                    final nom = _nomTontineController.text.trim();
+                    final montant =
+                        double.tryParse(_montantController.text.trim()) ?? 0;
+                    final seuil =
+                        double.tryParse(_seuilRetraitController.text.trim()) ??
+                        0;
+                    final frequence = _frequence;
+                    try {
+                      await Supabase.instance.client.from('tontines').insert({
+                        'nom': nom,
+                        'montant': montant,
+                        'frequence': frequence,
+                        'seuil_retrait': seuil,
+                        'createur_id': user.id,
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Tontine créée avec succès !')),
+                      );
+                      Navigator.pushReplacementNamed(
+                        context,
+                        '/home',
+                        arguments: {'token': ''},
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Erreur : ' + e.toString())),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16),

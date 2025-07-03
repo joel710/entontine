@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'connexion.dart';
 import 'depot.dart'; // Import the missing file
@@ -20,6 +21,11 @@ import 'transactions.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: 'https://lkqbsxqnxczvfenohpgs.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcWJzeHFueGN6dmZlbm9ocGdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDQ0MzgsImV4cCI6MjA2NzA4MDQzOH0._8RPT2yq4wOZHI29Ogak7aau-MrUHk5MOeBF31TNpJQ',
+  );
   await initializeDateFormatting('fr_FR'); // Initialisation pour le français
   runApp(EtontineApp());
 }
@@ -48,36 +54,48 @@ class EtontineApp extends StatelessWidget {
         '/inscription': (context) => InscriptionScreen(),
         '/gard': (context) => GardScreen(),
         '/home': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>?;
           final token = args?['token'] ?? '';
           return HomeScreen(token: token);
         },
         '/tontine': (context) => TontineScreen(),
         '/profil': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>?;
           final token = args?['token'] ?? '';
           return ProfilScreen(token: token);
         },
         '/changer_mot_de_passe': (context) => ChangerMotDePasseScreen(),
         '/notification': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>?;
           final token = args?['token'] ?? '';
           return NotificationsScreen(token: token);
         },
         '/depot': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>?;
           final token = args?['token'] ?? '';
           return SendMoneyPageScreen(token: token);
         },
         '/payement': (context) => PaymentMethodPageScreen(),
         '/transactions': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>?;
           final token = args?['token'] ?? '';
           return TransactionScreen(token: token);
         },
         '/support': (context) => SupportPageScreen(),
         '/retrait': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>?;
           final token = args?['token'] ?? '';
           return WithdrawPageScreen(token: token);
         },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'services/api_service.dart';
 import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'home.dart';
 import 'inscription.dart';
@@ -39,12 +40,29 @@ class _ConnexionScreenState extends State<ConnexionScreen> {
   }
 
   void login() async {
-    // Suppression de l'appel API, navigation directe avec token factice
-    Navigator.pushReplacementNamed(
-      context,
-      '/home',
-      arguments: {'token': 'dummy_token'},
-    );
+    final email = usernameController.text.trim();
+    final password = passwordController.text.trim();
+    try {
+      final response = await Supabase.instance.client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      if (response.user != null) {
+        Navigator.pushReplacementNamed(
+          context,
+          '/home',
+          arguments: {'token': response.session?.accessToken ?? ''},
+        );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Identifiants invalides.')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erreur : ' + e.toString())));
+    }
   }
 
   @override

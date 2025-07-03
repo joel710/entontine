@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'services/api_service.dart';
 import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class InscriptionScreen extends StatefulWidget {
   @override
@@ -74,11 +75,47 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
   }
 
   void register() async {
-    // Suppression de l'appel API, navigation directe avec message de succès
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Inscription réussie ! Connectez-vous.')),
-    );
-    Navigator.pushReplacementNamed(context, '/connexion');
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final nom = _nomController.text.trim();
+    final prenom = _prenomController.text.trim();
+    final tel = _telephoneController.text.trim();
+    try {
+      final response = await Supabase.instance.client.auth.signUp(
+        email: email,
+        password: password,
+        data: {
+          'username': email,
+          'first_name': prenom,
+          'last_name': nom,
+          'phone_number': tel,
+        },
+      );
+      if (response.user != null) {
+        await Supabase.instance.client.from('profiles').insert({
+          'id': response.user!.id,
+          'username': email,
+          'first_name': prenom,
+          'last_name': nom,
+          'phone_number': tel,
+          'address': '', // à adapter si tu as un champ adresse
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Inscription réussie ! Vérifiez votre email.'),
+          ),
+        );
+        Navigator.pushReplacementNamed(context, '/connexion');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de l\'inscription.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erreur : ' + e.toString())));
+    }
   }
 
   @override

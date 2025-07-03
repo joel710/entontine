@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'services/api_service.dart';
 import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilScreen extends StatefulWidget {
   final String token;
@@ -12,7 +13,7 @@ class ProfilScreen extends StatefulWidget {
 
 class _ProfilScreenState extends State<ProfilScreen> {
   bool _isEditing = false;
-  late Future<Map<String, dynamic>> profilFuture;
+  late Future<Map<String, dynamic>?> profilFuture;
 
   @override
   void initState() {
@@ -20,14 +21,16 @@ class _ProfilScreenState extends State<ProfilScreen> {
     profilFuture = fetchProfil();
   }
 
-  Future<Map<String, dynamic>> fetchProfil() async {
-    // Suppression de l'appel API, retour de données statiques
-    await Future.delayed(Duration(milliseconds: 300));
-    return {
-      'nom': 'Nom Test',
-      'email': 'test@email.com',
-      'telephone': '+22800000000',
-    };
+  Future<Map<String, dynamic>?> fetchProfil() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return null;
+    final response =
+        await Supabase.instance.client
+            .from('profiles')
+            .select()
+            .eq('id', user.id)
+            .single();
+    return response;
   }
 
   @override
@@ -57,20 +60,21 @@ class _ProfilScreenState extends State<ProfilScreen> {
           ),
         ],
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
+      body: FutureBuilder<Map<String, dynamic>?>(
         future: profilFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Erreur : \\${snapshot.error}'));
-          } else if (!snapshot.hasData) {
+          } else if (!snapshot.hasData || snapshot.data == null) {
             return Center(child: Text('Aucune donnée trouvée.'));
           }
           final data = snapshot.data!;
-          final nom = data['nom'] ?? '';
-          final email = data['email'] ?? '';
-          final tel = data['telephone'] ?? '';
+          final nom = data['last_name'] ?? '';
+          final prenom = data['first_name'] ?? '';
+          final email = data['username'] ?? '';
+          final tel = data['phone_number'] ?? '';
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Column(
@@ -81,20 +85,20 @@ class _ProfilScreenState extends State<ProfilScreen> {
                 ),
                 SizedBox(height: 16),
                 TextField(
-                  controller: TextEditingController(text: nom),
-                  enabled: _isEditing,
+                  controller: TextEditingController(text: '$prenom $nom'),
+                  enabled: false,
                   decoration: _inputDecoration("Nom complet"),
                 ),
                 SizedBox(height: 12),
                 TextField(
                   controller: TextEditingController(text: email),
-                  enabled: _isEditing,
+                  enabled: false,
                   decoration: _inputDecoration("Adresse email"),
                 ),
                 SizedBox(height: 12),
                 TextField(
                   controller: TextEditingController(text: tel),
-                  enabled: _isEditing,
+                  enabled: false,
                   decoration: _inputDecoration("Téléphone"),
                 ),
                 SizedBox(height: 30),
