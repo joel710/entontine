@@ -58,10 +58,62 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
       return;
     }
     final montant = double.tryParse(inputAmount) ?? 0;
+    // 1. Récupérer la tontine de l'utilisateur (ici, la première trouvée)
+    final tontines = await Supabase.instance.client
+        .from('tontines')
+        .select()
+        .eq('createur_id', user.id)
+        .limit(1);
+    if (tontines.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: Text('Erreur'),
+              content: Text('Aucune tontine trouvée.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK'),
+                ),
+              ],
+            ),
+      );
+      return;
+    }
+    final tontine = tontines[0];
+    final montantCotisation = double.tryParse(tontine['montant'].toString()) ?? 0;
+    final tontineId = tontine['id'];
+    // 2. Vérifier que le montant du dépôt est suffisant
+    if (montant < montantCotisation) {
+      setState(() {
+        isLoading = false;
+      });
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: Text('Montant insuffisant'),
+              content: Text(
+                'Le montant du dépôt doit être supérieur ou égal à la cotisation définie pour la tontine.\n\nMontant minimum requis : ${montantCotisation.toStringAsFixed(0)} FCFA',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK'),
+                ),
+              ],
+            ),
+      );
+      return;
+    }
+    // 3. Continuer le process normal (création transaction, appel Paygate...)
     final identifier =
         DateTime.now().millisecondsSinceEpoch.toString() +
         user.id.substring(0, 6);
-    // 1. Créer la transaction dans Supabase
     final insertResult =
         await Supabase.instance.client
             .from('transactions')
@@ -74,11 +126,11 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
               'date': DateTime.now().toIso8601String(),
               'details': {'phone': phone},
               'identifier': identifier,
+              'tontine_id': tontineId,
             })
             .select()
             .single();
     final transactionId = insertResult['id'];
-    // 2. Appeler l'API Paygate
     final paygateResponse = await http.post(
       Uri.parse('https://paygateglobal.com/api/v1/pay'),
       headers: {'Content-Type': 'application/json'},
@@ -104,7 +156,6 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
     } else {
       status = 'echoue';
     }
-    // 3. Mettre à jour la transaction dans Supabase
     await Supabase.instance.client
         .from('transactions')
         .update({
@@ -115,7 +166,6 @@ class _SendMoneyPageState extends State<SendMoneyPageScreen> {
     setState(() {
       isLoading = false;
     });
-    // 4. Afficher le résultat
     showDialog(
       context: context,
       builder:
