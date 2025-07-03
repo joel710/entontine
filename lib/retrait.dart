@@ -44,8 +44,55 @@ class _WithdrawPageState extends State<WithdrawPageScreen> {
     final montant = double.tryParse(inputAmount) ?? 0;
     final phone = phoneController.text.trim();
     final service = selectedMethod.toLowerCase();
+    // 1. Récupérer la tontine de l'utilisateur (ici, la première trouvée)
+    final tontines = await Supabase.instance.client
+        .from('tontines')
+        .select()
+        .eq('createur_id', user.id)
+        .limit(1);
+    if (tontines.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Erreur'),
+          content: Text('Aucune tontine trouvée.'),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text('OK'))],
+        ),
+      );
+      return;
+    }
+    final tontine = tontines[0];
+    final seuilRetrait = double.tryParse(tontine['seuil_retrait'].toString()) ?? 0;
+    final tontineId = tontine['id'];
+    // 2. Calculer la somme des cotisations réussies pour cette tontine
+    final cotisations = await Supabase.instance.client
+        .from('transactions')
+        .select()
+        .eq('user_id', user.id)
+        .eq('tontine_id', tontineId)
+        .eq('type', 'depot')
+        .eq('status', 'reussi');
+    double totalCotise = 0;
+    for (final tx in cotisations) {
+      totalCotise += double.tryParse(tx['montant'].toString()) ?? 0;
+    }
+    // 3. Vérifier le seuil
+    if (totalCotise < seuilRetrait) {
+      final reste = seuilRetrait - totalCotise;
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Objectif non atteint'),
+          content: Text(
+            'Vous n\'avez pas encore atteint votre objectif de tontine.\n\nSolde actuel : ${totalCotise.toStringAsFixed(0)} FCFA\nObjectif : ${seuilRetrait.toStringAsFixed(0)} FCFA\nIl vous reste ${reste.toStringAsFixed(0)} FCFA à cotiser avant de pouvoir retirer.',
+          ),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text('OK'))],
+        ),
+      );
+      return;
+    }
+    // 4. Continuer le process normal (création transaction, appel Paygate...)
     final identifier = DateTime.now().millisecondsSinceEpoch.toString() + user.id.substring(0, 6);
-    // 1. Créer la transaction dans Supabase
     final insertResult = await Supabase.instance.client.from('transactions').insert({
       'user_id': user.id,
       'type': 'retrait',
@@ -55,9 +102,9 @@ class _WithdrawPageState extends State<WithdrawPageScreen> {
       'date': DateTime.now().toIso8601String(),
       'details': {'phone': phone},
       'identifier': identifier,
+      'tontine_id': tontineId,
     }).select().single();
     final transactionId = insertResult['id'];
-    // 2. Appeler l'API Paygate
     final paygateResponse = await http.post(
       Uri.parse('https://paygateglobal.com/api/v1/pay'),
       headers: {'Content-Type': 'application/json'},
@@ -83,12 +130,10 @@ class _WithdrawPageState extends State<WithdrawPageScreen> {
     } else {
       status = 'echoue';
     }
-    // 3. Mettre à jour la transaction dans Supabase
     await Supabase.instance.client.from('transactions').update({
       'status': status,
       'details': {'phone': phone, 'tx_reference': txReference},
     }).eq('id', transactionId);
-    // 4. Afficher le résultat
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -102,7 +147,16 @@ class _WithdrawPageState extends State<WithdrawPageScreen> {
     if (status == 'reussi') {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const WithdrawalSuccessPage()),
+        MaterialPageRoute(
+          builder: (_) => WithdrawalSuccessPage(
+            montant: montant,
+            phone: phone,
+            service: service,
+            date: DateTime.now().toIso8601String(),
+            txReference: txReference,
+            identifier: identifier,
+          ),
+        ),
       );
     }
   }
@@ -279,7 +333,22 @@ class _WithdrawPageState extends State<WithdrawPageScreen> {
 }
 
 class WithdrawalSuccessPage extends StatelessWidget {
-  const WithdrawalSuccessPage({Key? key}) : super(key: key);
+  final double montant;
+  final String phone;
+  final String service;
+  final String date;
+  final String txReference;
+  final String identifier;
+
+  const WithdrawalSuccessPage({
+    Key? key,
+    required this.montant,
+    required this.phone,
+    required this.service,
+    required this.date,
+    required this.txReference,
+    required this.identifier,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -319,6 +388,7 @@ class WithdrawalSuccessPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Icon(
                       Icons.check_circle,
@@ -334,7 +404,12 @@ class WithdrawalSuccessPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Text("Merci d'avoir utilisé notre service."),
+                    Text("Montant : ${montant.toStringAsFixed(0)} FCFA", style: TextStyle(fontSize: 16)),
+                    Text("Numéro : $phone", style: TextStyle(fontSize: 16)),
+                    Text("Service : $service", style: TextStyle(fontSize: 16)),
+                    Text("Date : $date", style: TextStyle(fontSize: 16)),
+                    Text("Référence Paygate : $txReference", style: TextStyle(fontSize: 16)),
+                    Text("Identifiant transaction : $identifier", style: TextStyle(fontSize: 16)),
                     const Spacer(),
                     ElevatedButton(
                       onPressed: () => Navigator.pushNamed(context, '/home'),
