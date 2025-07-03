@@ -42,21 +42,29 @@ class _HomeScreenState extends State<HomeScreen> {
     if (user == null) {
       return {'balance': '0 CFA', 'transactions': []};
     }
-    // Récupérer les transactions de l'utilisateur
+    // 1. Récupérer la tontine en cours (la première trouvée)
+    final tontines = await Supabase.instance.client
+        .from('tontines')
+        .select()
+        .eq('createur_id', user.id)
+        .limit(1);
+    if (tontines.isEmpty) {
+      return {'balance': '0 CFA', 'transactions': []};
+    }
+    final tontine = tontines[0];
+    final tontineId = tontine['id'];
+    // 2. Récupérer les transactions de dépôt réussies pour cette tontine
     final transactions = await Supabase.instance.client
         .from('transactions')
         .select()
         .eq('user_id', user.id)
+        .eq('tontine_id', tontineId)
         .order('date', ascending: false)
         .limit(10);
-    // Calculer la balance (somme des dépôts réussis)
     double balance = 0;
     for (final tx in transactions) {
       if (tx['type'] == 'depot' && tx['status'] == 'reussi') {
         balance += double.tryParse(tx['montant'].toString()) ?? 0;
-      }
-      if (tx['type'] == 'retrait' && tx['status'] == 'reussi') {
-        balance -= double.tryParse(tx['montant'].toString()) ?? 0;
       }
     }
     return {
